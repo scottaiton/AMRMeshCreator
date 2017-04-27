@@ -1,10 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public class AMRPanel extends JPanel implements ActionListener {
@@ -29,7 +27,7 @@ public class AMRPanel extends JPanel implements ActionListener {
 
 	public AMRPanel() {
 		level = 1;
-		JButton b = new JButton("o");
+		AMRButton b = new AMRButton();
 		b.addActionListener(this);
 		setLayout(new BorderLayout(0, 0));
 		setVisible(true);
@@ -38,7 +36,7 @@ public class AMRPanel extends JPanel implements ActionListener {
 
 	public AMRPanel(AMRPanel parent) {
 		level = parent.level + 1;
-		JButton b = new JButton("o");
+		AMRButton b = new AMRButton();
 		b.addActionListener(this);
 		setLayout(new BorderLayout(0, 0));
 		setVisible(true);
