@@ -72,8 +72,8 @@ public class AMRPanel extends JPanel implements ActionListener {
 			if (nbr_north_right != null) {
 				child_nw.nbr_north = nbr_north;
 				child_ne.nbr_north = nbr_north_right;
-				nbr_north.nbr_south = child_ne;
-				nbr_north_right.nbr_south = child_nw;
+				nbr_north.nbr_south = child_nw;
+				nbr_north_right.nbr_south = child_ne;
 			} else {
 				child_nw.nbr_north = nbr_north;
 				child_ne.nbr_north = nbr_north;
@@ -111,8 +111,8 @@ public class AMRPanel extends JPanel implements ActionListener {
 			if (nbr_west_right != null) {
 				child_sw.nbr_west = nbr_west;
 				child_nw.nbr_west = nbr_west_right;
-				nbr_west.nbr_east = child_nw;
-				nbr_west_right.nbr_east = child_sw;
+				nbr_west.nbr_east = child_sw;
+				nbr_west_right.nbr_east = child_nw;
 			} else {
 				child_nw.nbr_west = nbr_west;
 				child_sw.nbr_west = nbr_west;

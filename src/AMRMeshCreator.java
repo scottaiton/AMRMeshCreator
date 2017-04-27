@@ -3,6 +3,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,38 +12,50 @@ import java.util.Queue;
 import java.util.Set;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-public class AMRMeshCreator extends JFrame {
+public class AMRMeshCreator extends JFrame implements ActionListener {
 
 	private AMRPanel root;
+	private JFileChooser fc;
+ private JMenuItem save;
+ private JMenuItem reset;
 
 	public AMRMeshCreator() {
 		// TODO Auto-generated constructor stub
 		// menubar
 		JMenuBar menubar = new JMenuBar();
-		JMenuItem save = new JMenuItem("Save");
-		save.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ev) {
-				outputMesh();
-			}
-		});
+		 save = new JMenuItem("Save");
+		 reset = new JMenuItem("Reset");
+		save.addActionListener(this);
+		reset.addActionListener(this);
 		menubar.add(save);
+		menubar.add(reset);
 		setJMenuBar(menubar);
 		root = new AMRPanel();
+		fc = new JFileChooser();
+		File workingDirectory = new File(System.getProperty("user.dir"));
+		fc.setCurrentDirectory(workingDirectory);
 		setBounds(40, 80, 400, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().add(root, BorderLayout.CENTER);
 		setVisible(true);// now frame will be visible, by default not visible
 	}
 
-	private void outputMesh() {
+	private void outputMesh(File out_file) {
 		indexButtons();
-		PrintStream out = System.out;
+		PrintStream out = null;
+		try {
+			out = new PrintStream(out_file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Queue<AMRPanel> q = new LinkedList<AMRPanel>();
 		Set<AMRPanel> visited = new HashSet<AMRPanel>();
 		q.add(root.getSWLeaf());
@@ -70,7 +84,7 @@ public class AMRMeshCreator extends JFrame {
 			out.print("\n");
 			enqueue(curr, q, visited);
 		}
-		out.println("DONE");
+		out.close();
 
 	}
 
@@ -88,6 +102,40 @@ public class AMRMeshCreator extends JFrame {
 		}
 
 	}
+
+	  public void actionPerformed(ActionEvent e) {
+		  
+	        //Handle open button action.
+	        /*if (e.getSource() == openButton) {
+	            int returnVal = fc.showOpenDialog(FileChooserDemo.this);
+	 
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where a real application would open the file.
+	                System.out.println("Opening: " + file.getName() + ".");
+	            } else {
+	                System.out.println("Open command cancelled by user.");
+	            }
+	 
+	        //Handle save button action.
+	        } else*/ if (e.getSource() == save) {
+	            int returnVal = fc.showSaveDialog(this);
+	            if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                File file = fc.getSelectedFile();
+	                //This is where a real application would save the file.
+	                System.out.println("Saving: " + file.getName() + ".");
+	                outputMesh(file);
+	            } else {
+	                System.out.println("Save command cancelled by user.");
+	            }
+	        }else if(e.getSource()==reset){
+	        	remove(root);
+	        	root=new AMRPanel();
+		getContentPane().add(root, BorderLayout.CENTER);
+	        	revalidate();
+	               System.out.println("reset");
+	        }
+	    }
 
 	private static void enqueue(AMRPanel curr, Queue<AMRPanel> q, Set<AMRPanel> visited) {
 		try_enqueue(curr.nbr_north,q,visited);
