@@ -67,6 +67,19 @@ public class AMRPanel extends JPanel implements ActionListener {
 		child_se.nbr_west = child_sw;
 		child_se.nbr_north = child_ne;
 
+		// refine neighbors if needed
+		if (nbr_north != null && nbr_north.level < level) {
+			nbr_north.refine();
+		}
+		if (nbr_east != null && nbr_east.level < level) {
+			nbr_east.refine();
+		}
+		if (nbr_south != null && nbr_south.level < level) {
+			nbr_south.refine();
+		}
+		if (nbr_west != null && nbr_west.level < level) {
+			nbr_west.refine();
+		}
 		// set outer neighbors
 		if (nbr_north != null) {
 			if (nbr_north_right != null) {
