@@ -58,8 +58,8 @@ public class AMRPanel extends JPanel implements ActionListener {
 		if (mode == Mode.add) {
 			Pair<QuadTree, Side> nbr = getNbrOf(cursor_x, cursor_y);
 			if (nbr != null) {
-				nbr.getLeft().drawPotentialNbr(g, x_orig, y_orig + (int)scale, (int)scale,
-						cursor_x, cursor_y);
+				nbr.getLeft().drawPotentialNbr(g, x_orig, y_orig + (int) scale,
+						(int) scale, cursor_x, cursor_y);
 			}
 		}
 	}
@@ -71,7 +71,7 @@ public class AMRPanel extends JPanel implements ActionListener {
 		enqueued.add(root);
 		while (!queue.isEmpty()) {
 			QuadTree t = queue.remove();
-			t.drawLeafs(g, x_orig, y_orig + (int)scale, (int)scale);
+			t.drawLeafs(g, x_orig, y_orig + (int) scale, (int) scale);
 			for (Side s : Side.values()) {
 				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
 					queue.add(t.nbr(s));
@@ -158,20 +158,22 @@ public class AMRPanel extends JPanel implements ActionListener {
 				break;
 			}
 		}
-		switch (mode) {
-		case add:
-			addMouseListener(add_adapter);
-			addMouseMotionListener(add_adapter);
-			break;
-		case refine:
-		case coarsen:
-			refine_adapter.setCoarsen(mode==Mode.coarsen);
-			addMouseListener(refine_adapter);
-			addMouseMotionListener(refine_adapter);
-			break;
-		default:
-			break;
+		if (mode != null) {
+			switch (mode) {
+			case add:
+				addMouseListener(add_adapter);
+				addMouseMotionListener(add_adapter);
+				break;
+			case refine:
+			case coarsen:
+				refine_adapter.setCoarsen(mode == Mode.coarsen);
+				addMouseListener(refine_adapter);
+				addMouseMotionListener(refine_adapter);
+				break;
+			default:
+				break;
 
+			}
 		}
 		this.mode = mode;
 		repaint();

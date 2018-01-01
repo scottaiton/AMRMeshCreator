@@ -1,7 +1,6 @@
 package twoDimensions;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -12,57 +11,83 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
+import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.embed.swing.SwingNode;
+import javafx.scene.Scene;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
-public class AMRMeshCreator extends JFrame implements ActionListener {
 
-	private static final long serialVersionUID = 3178253784369479075L;
+public class AMRMeshCreator extends Application {
+
 	private AMRPanel panel;
-	private JFileChooser fc;
-	private JToolBar toolbar;
-	private JMenuItem save;
-	private JMenuItem reset;
-	private JToggleButton refine_button;
-	private JToggleButton coarsen_button;
-	private JToggleButton add_button;
-	private Mode mode = Mode.add;
+	//private JFileChooser fc;
+	private ToolBar toolbar;
+	//private JMenuItem save;
+	//private JMenuItem reset;
+	private ToggleGroup mode;
+	private ToggleButton refine_button;
+	private ToggleButton coarsen_button;
+	private ToggleButton add_button;
 
-	public AMRMeshCreator() {
+
+    public void start(Stage primaryStage) {
 		// TODO Auto-generated constructor stub
 		// menubar
-		JMenuBar menubar = new JMenuBar();
-		save = new JMenuItem("Save");
-		reset = new JMenuItem("Reset");
-		save.addActionListener(this);
-		reset.addActionListener(this);
-		menubar.add(save);
-		menubar.add(reset);
-		setJMenuBar(menubar);
-		refine_button = new JToggleButton("Refine");
-		refine_button.addActionListener(this);
-		coarsen_button = new JToggleButton("Coarsen");
-		coarsen_button.addActionListener(this);
-		add_button = new JToggleButton("Add", true);
-		add_button.addActionListener(this);
-		toolbar = new JToolBar();
-		toolbar.add(refine_button);
-		toolbar.add(coarsen_button);
-		toolbar.add(add_button);
-		getContentPane().add(toolbar, BorderLayout.NORTH);
-		panel = new AMRPanel();
-		panel.setMode(mode);
-		fc = new JFileChooser();
-		File workingDirectory = new File(System.getProperty("user.dir"));
-		fc.setCurrentDirectory(workingDirectory);
-		setBounds(40, 80, 400, 400);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		getContentPane().add(panel, BorderLayout.CENTER);
-		setVisible(true);// now frame will be visible, by default not visible
+		//JMenuBar menubar = new JMenuBar();
+		//save = new JMenuItem("Save");
+		//reset = new JMenuItem("Reset");
+		//save.addActionListener(this);
+		//reset.addActionListener(this);
+		//menubar.add(save);
+		//menubar.add(reset);
+		refine_button = new ToggleButton("Refine");
+		refine_button.setUserData(Mode.refine);
+		//refine_button.addActionListener(this);
+		coarsen_button = new ToggleButton("Coarsen");
+		coarsen_button.setUserData(Mode.coarsen);
+		//coarsen_button.addActionListener(this);
+		add_button = new ToggleButton("Add");
+		add_button.setUserData(Mode.add);
+		mode = new ToggleGroup();
+		refine_button.setToggleGroup(mode);
+		coarsen_button.setToggleGroup(mode);
+		add_button.setToggleGroup(mode);
+		mode.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+		    public void changed(ObservableValue<? extends Toggle> ov,
+		        Toggle toggle, Toggle new_toggle) {
+		            if (new_toggle == null)
+		                panel.setMode(null);
+		            else
+		                panel.setMode((Mode) mode.getSelectedToggle().getUserData());
+		         }
+		});
+		//add_button.addActionListener(this);
+		toolbar = new ToolBar(
+		refine_button,
+		coarsen_button,
+		add_button);
+		panel = new AMRPanel ();
+		SwingNode sn=new SwingNode();
+		sn.setContent(panel);
+		 BorderPane root = new BorderPane();
+		 root.setTop(toolbar);
+		 root.setCenter(sn);
+		//fc = new JFileChooser();
+		//File workingDirectory = new File(System.getProperty("user.dir"));
+		//fc.setCurrentDirectory(workingDirectory);
+		//setBounds(40, 80, 400, 400);
+		Scene scene = new Scene(root, 300, 250);
+        primaryStage.setTitle("Hello World!");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 	}
 
 	private void outputMesh(File out_file) {
@@ -96,57 +121,6 @@ public class AMRMeshCreator extends JFrame implements ActionListener {
 		 */
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == add_button) {
-			if (mode == Mode.add) {
-				add_button.setSelected(true);
-			} else {
-				mode = Mode.add;
-				panel.setMode(mode);
-				add_button.setSelected(true);
-				refine_button.setSelected(false);
-				coarsen_button.setSelected(false);
-			}
-		} else if (e.getSource() == refine_button) {
-			if (mode == Mode.refine) {
-				refine_button.setSelected(true);
-			} else {
-				mode = Mode.refine;
-				panel.setMode(mode);
-				add_button.setSelected(false);
-				refine_button.setSelected(true);
-				coarsen_button.setSelected(false);
-			}
-		} else if (e.getSource() == coarsen_button) {
-			if (mode == Mode.coarsen) {
-				coarsen_button.setSelected(true);
-			} else {
-				mode = Mode.coarsen;
-				panel.setMode(mode);
-				add_button.setSelected(false);
-				refine_button.setSelected(false);
-				coarsen_button.setSelected(true);
-			}
-		} else if (e.getSource() == reset) {
-			//TODO create method for this
-			panel.x_orig=10;
-			panel.y_orig=10;
-			panel.root = new QuadTree();
-			repaint();
-		}
-		/*
-		 * if (e.getSource() == save) { int returnVal = fc.showSaveDialog(this);
-		 * if (returnVal == JFileChooser.APPROVE_OPTION) { File file =
-		 * fc.getSelectedFile(); // This is where a real application would save
-		 * the file. System.out.println("Saving: " + file.getName() + ".");
-		 * outputMesh(file); } else {
-		 * System.out.println("Save command cancelled by user."); } } else if
-		 * (e.getSource() == reset) { remove(root); root = new AMRPanel();
-		 * getContentPane().add(root, BorderLayout.CENTER); revalidate();
-		 * System.out.println("reset"); }
-		 */
-	}
-
 	private static void enqueue(AMRPanel curr, Queue<AMRPanel> q,
 			Set<AMRPanel> visited) {
 		/*
@@ -170,7 +144,8 @@ public class AMRMeshCreator extends JFrame implements ActionListener {
 	}
 
 	public static void main(String args[]) {
-		new AMRMeshCreator();
+        launch(args);
 	}
+
 
 }
