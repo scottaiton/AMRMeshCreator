@@ -1,9 +1,12 @@
 package twoDimensions;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class QuadTree {
 
@@ -14,7 +17,7 @@ public class QuadTree {
 	public double y_length = 1;
 	public int id;
 
-	private QuadTree parent;
+	public QuadTree parent;
 	private QuadTree children[];
 	private QuadTree nbrs[];
 
@@ -66,7 +69,7 @@ public class QuadTree {
 		children[q.ordinal()] = t;
 	}
 
-	private QuadTree[] children(Side s) {
+	public QuadTree[] children(Side s) {
 		QuadTree[] retval = new QuadTree[2];
 		Quad qs[] = Quad.onSide(s);
 		retval[0] = child(qs[0]);
@@ -74,7 +77,7 @@ public class QuadTree {
 		return retval;
 	}
 
-	private boolean hasChildren() {
+	public boolean hasChildren() {
 		return children != null;
 	}
 
@@ -117,12 +120,7 @@ public class QuadTree {
 		}
 	}
 
-	public void actionPerformed(ActionEvent arg0) {
-
-		refine();
-	}
-
-	public void drawLeafs(Graphics g, int x_orig, int y_orig, double size) {
+	public void drawLeafs(GraphicsContext g, int x_orig, int y_orig, double size) {
 		if (hasChildren()) {
 			for (Quad q : Quad.values()) {
 				child(q).drawLeafs(g, x_orig, y_orig, size);
@@ -132,22 +130,22 @@ public class QuadTree {
 			int y_px = y_orig - (int) ((y_start + y_length) * size);
 			int x_ln = (int) Math.ceil(size * x_length);
 			int y_ln = (int) Math.ceil(size * y_length);
-			g.setColor(Color.white);
+			g.setFill(Color.WHITE);
+			g.setStroke(Color.RED);
 			g.fillRect(x_px, y_px, x_ln, y_ln);
-			g.setColor(Color.red);
-			g.drawRect(x_px, y_px, x_ln, y_ln);
+			g.strokeRect(x_px, y_px, x_ln, y_ln);
 		}
-		if(level==1){
+		if (level == 1) {
 			int x_px = x_orig + (int) (x_start * size);
 			int y_px = y_orig - (int) ((y_start + y_length) * size);
-			g.setColor(Color.black);
-			g.drawRect(x_px, y_px,(int)size-1,(int)size-1);
-			g.drawRect(x_px-1, y_px-1,(int)size+1,(int)size+1);
+			g.setStroke(Color.BLACK);
+			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
+			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 		}
 	}
 
 	public void refineAt(double x, double y) {
-		if (isInside(x,y)){
+		if (isInside(x, y)) {
 			if (hasChildren()) {
 				for (QuadTree t : children) {
 					t.refineAt(x, y);
@@ -178,8 +176,8 @@ public class QuadTree {
 
 	}
 
-	public void drawPotentialNbr(Graphics g, int x_orig, int y_orig, int size,
-			double x, double y) {
+	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig,
+			int size, double x, double y) {
 		int x_px = 0;
 		int y_px = 0;
 		if (isPotentialNbr(Side.WEST, x, y)) {
@@ -195,11 +193,11 @@ public class QuadTree {
 			x_px = x_orig + (int) (x_start) * size;
 			y_px = y_orig - (int) (y_start + 2 * y_length) * size;
 		}
-		g.setColor(Color.lightGray);
+		g.setFill(Color.LIGHTGRAY);
+		g.setStroke(Color.BLACK);
 		g.fillRect(x_px, y_px, size, size);
-		g.setColor(Color.black);
-		g.drawRect(x_px, y_px,(int)size-1,(int)size-1);
-		g.drawRect(x_px-1, y_px-1,(int)size+1,(int)size+1);
+		g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
+		g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 	}
 
 	public boolean isPotentialNbr(double x, double y) {
@@ -285,24 +283,49 @@ public class QuadTree {
 	public void coarsen() {
 		if (hasChildren()) {
 			for (QuadTree t : children) {
-				//coarsen children if needed
-				if (t.hasChildren()){
+				// coarsen children if needed
+				if (t.hasChildren()) {
 					t.coarsen();
 				}
 				for (Side s : Side.values()) {
 					QuadTree nbr = t.nbr(s);
 					if (nbr != null) {
-						//coarsen nbr if needed
+						// coarsen nbr if needed
 						if (nbr.hasChildren()) {
 							nbr.coarsen();
 						}
-						//null out nbrs 
+						// null out nbrs
 						nbr.setNbr(s.opposite(), null);
 						t.setNbr(s, null);
 					}
 				}
 			}
 			children = null;
+		}
+	}
+
+	static public void indexNodes(QuadTree root) {
+		int curr_i = 0;
+		Queue<QuadTree> q = new LinkedList<QuadTree>();
+		Set<QuadTree> visited = new HashSet<QuadTree>();
+		q.add(root);
+		while (!q.isEmpty()) {
+			QuadTree curr = q.remove();
+			visited.add(curr);
+			curr.id = curr_i;
+			curr_i++;
+			for (QuadTree t : curr.nbrs) {
+				if (t != null &&!q.contains(t)&& !visited.contains(t)) {
+					q.add(t);
+				}
+			}
+			if (curr.hasChildren()) {
+				for (QuadTree t : curr.children) {
+					if (t != null &&!q.contains(t)&& !visited.contains(t)) {
+						q.add(t);
+					}
+				}
+			}
 		}
 	}
 

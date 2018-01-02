@@ -1,8 +1,5 @@
 package twoDimensions;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -14,138 +11,169 @@ import java.util.Set;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingNode;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 
 public class AMRMeshCreator extends Application {
 
-	private AMRPanel panel;
-	//private JFileChooser fc;
+	private AmrCanvasPane panel;
+	// private JFileChooser fc;
 	private ToolBar toolbar;
-	//private JMenuItem save;
-	//private JMenuItem reset;
 	private ToggleGroup mode;
 	private ToggleButton refine_button;
 	private ToggleButton coarsen_button;
 	private ToggleButton add_button;
+	private QuadTree root;
+	Stage primary_stage;
 
-
-    public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) {
+		primary_stage = primaryStage;
 		// TODO Auto-generated constructor stub
 		// menubar
-		//JMenuBar menubar = new JMenuBar();
-		//save = new JMenuItem("Save");
-		//reset = new JMenuItem("Reset");
-		//save.addActionListener(this);
-		//reset.addActionListener(this);
-		//menubar.add(save);
-		//menubar.add(reset);
+		// JMenuBar menubar = new JMenuBar();
+		// save = new JMenuItem("Save");
+		// reset = new JMenuItem("Reset");
+		// save.addActionListener(this);
+		// reset.addActionListener(this);
+		// menubar.add(save);
+		// menubar.add(reset);
+		root = new QuadTree();
 		refine_button = new ToggleButton("Refine");
 		refine_button.setUserData(Mode.refine);
-		//refine_button.addActionListener(this);
+		// refine_button.addActionListener(this);
 		coarsen_button = new ToggleButton("Coarsen");
 		coarsen_button.setUserData(Mode.coarsen);
-		//coarsen_button.addActionListener(this);
+		// coarsen_button.addActionListener(this);
 		add_button = new ToggleButton("Add");
 		add_button.setUserData(Mode.add);
 		mode = new ToggleGroup();
 		refine_button.setToggleGroup(mode);
 		coarsen_button.setToggleGroup(mode);
 		add_button.setToggleGroup(mode);
-		mode.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
-		    public void changed(ObservableValue<? extends Toggle> ov,
-		        Toggle toggle, Toggle new_toggle) {
-		            if (new_toggle == null)
-		                panel.setMode(null);
-		            else
-		                panel.setMode((Mode) mode.getSelectedToggle().getUserData());
-		         }
+		mode.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			public void changed(ObservableValue<? extends Toggle> ov,
+					Toggle toggle, Toggle new_toggle) {
+				if (new_toggle == null)
+					panel.setMode(null);
+				else
+					panel.setMode((Mode) mode.getSelectedToggle().getUserData());
+			}
 		});
-		//add_button.addActionListener(this);
-		toolbar = new ToolBar(
-		refine_button,
-		coarsen_button,
-		add_button);
-		panel = new AMRPanel ();
-		SwingNode sn=new SwingNode();
-		sn.setContent(panel);
-		 BorderPane root = new BorderPane();
-		 root.setTop(toolbar);
-		 root.setCenter(sn);
-		//fc = new JFileChooser();
-		//File workingDirectory = new File(System.getProperty("user.dir"));
-		//fc.setCurrentDirectory(workingDirectory);
-		//setBounds(40, 80, 400, 400);
-		Scene scene = new Scene(root, 300, 250);
-        primaryStage.setTitle("Hello World!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+		// add_button.addActionListener(this);
+		toolbar = new ToolBar(refine_button, coarsen_button, add_button);
+		panel = new AmrCanvasPane(root);
+		BorderPane root = new BorderPane();
+		root.setCenter(panel);
+		VBox vbox = new VBox();
+		Menu file_menu = new Menu("File");
+		MenuBar menuBar = new MenuBar();
+		MenuItem save_item = new MenuItem("Save");
+		save_item.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+				save();
+			}
+		});
+		file_menu.getItems().add(save_item);
+		menuBar.getMenus().add(file_menu);
+		vbox.getChildren().addAll(menuBar, toolbar);
+		root.setTop(vbox);
+
+		Scene scene = new Scene(root, 500, 500);
+		primaryStage.setTitle("2D AMR Mesh Creator");
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
 
-	private void outputMesh(File out_file) {
-		/*
-		 * indexButtons(); PrintStream out = null; try { out = new
-		 * PrintStream(out_file); } catch (FileNotFoundException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } Queue<AMRPanel> q =
-		 * new LinkedList<AMRPanel>(); Set<AMRPanel> visited = new
-		 * HashSet<AMRPanel>(); q.add(root.getSWLeaf()); while (!q.isEmpty()) {
-		 * AMRPanel curr = q.remove(); visited.add(curr); out.print(curr.id);
-		 * out.print("\t"); out.print(curr.level); out.print("\t");
-		 * out.print(curr.nbrWestLeft()); out.print("\t");
-		 * out.print(curr.nbrWestRight()); out.print("\t");
-		 * out.print(curr.nbrEastRight()); out.print("\t");
-		 * out.print(curr.nbrEastLeft()); out.print("\t");
-		 * out.print(curr.nbrSouthRight()); out.print("\t");
-		 * out.print(curr.nbrSouthLeft()); out.print("\t");
-		 * out.print(curr.nbrNorthLeft()); out.print("\t");
-		 * out.print(curr.nbrNorthRight()); out.print("\n"); enqueue(curr, q,
-		 * visited); } out.close();
-		 */
+	private void save() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		File out_file = fileChooser.showSaveDialog(primary_stage);
+		outputMeshGraph(out_file);
 	}
 
-	private void indexButtons() {
-		/*
-		 * int curr_i = 0; Queue<AMRPanel> q = new LinkedList<AMRPanel>();
-		 * Set<AMRPanel> visited = new HashSet<AMRPanel>();
-		 * q.add(root.getSWLeaf()); while (!q.isEmpty()) { AMRPanel curr =
-		 * q.remove(); visited.add(curr); curr.id = curr_i; curr_i++;
-		 * enqueue(curr, q, visited); }
-		 */
-	}
+	private void outputMeshGraph(File out_file) {
+		QuadTree.indexNodes(root);
+		PrintStream out = null;
+		try {
+			out = new PrintStream(out_file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		Queue<QuadTree> q = new LinkedList<QuadTree>();
+		Set<QuadTree> visited = new HashSet<QuadTree>();
+		{
+			QuadTree t = root;
+			while (t.hasChildren()) {
+				t = t.child(Quad.SW);
+			}
+			q.add(t);
+		}
+		while (!q.isEmpty()) {
+			QuadTree curr = q.remove();
+			visited.add(curr);
+			out.print(curr.id);
+			out.print("\t");
+			out.print(curr.level);
+			out.print("\t");
+			for (Side s : Side.values()) {
+				int lower = -1;
+				int upper = -1;
+				if (curr.nbr(s) == null && curr.parent != null
+						&& curr.parent.nbr(s) != null) {
+					// coarse case
+					QuadTree nbr = curr.parent.nbr(s);
+					lower = nbr.id;
+					upper = nbr.id;
+					if (!q.contains(nbr) && !visited.contains(nbr)) {
+						q.add(nbr);
+					}
+				} else if (curr.nbr(s) != null && curr.nbr(s).hasChildren()) {
+					// refined case
+					QuadTree[] nbr_children = curr.nbr(s)
+							.children(s.opposite());
+					lower = nbr_children[0].id;
+					upper = nbr_children[1].id;
+					for (QuadTree nbr : nbr_children) {
+						if (!q.contains(nbr) && !visited.contains(nbr)) {
+							q.add(nbr);
+						}
+					}
+				} else if (curr.nbr(s) != null) {
+					// normal case
+					QuadTree nbr = curr.nbr(s);
+					lower = nbr.id;
+					upper = nbr.id;
+					if (!q.contains(nbr) && !visited.contains(nbr)) {
+						q.add(nbr);
+					}
+				}
+				out.print(lower);
+				out.print("\t");
+				out.print(upper);
+				out.print("\t");
 
-	private static void enqueue(AMRPanel curr, Queue<AMRPanel> q,
-			Set<AMRPanel> visited) {
-		/*
-		 * try_enqueue(curr.nbr_north, q, visited);
-		 * try_enqueue(curr.nbr_north_right, q, visited);
-		 * try_enqueue(curr.nbr_east, q, visited);
-		 * try_enqueue(curr.nbr_east_right, q, visited);
-		 * try_enqueue(curr.nbr_south, q, visited);
-		 * try_enqueue(curr.nbr_south_right, q, visited);
-		 * try_enqueue(curr.nbr_west, q, visited);
-		 * try_enqueue(curr.nbr_west_right, q, visited);
-		 */
-	}
-
-	private static void try_enqueue(AMRPanel next, Queue<AMRPanel> q,
-			Set<AMRPanel> visited) {
-		/*
-		 * if (next != null && !q.contains(next) && !visited.contains(next)) {
-		 * q.add(next); }
-		 */
+			}
+			out.print("\n");
+		}
+		out.close();
 	}
 
 	public static void main(String args[]) {
-        launch(args);
+		launch(args);
 	}
-
 
 }
