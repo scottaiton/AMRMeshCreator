@@ -1,4 +1,4 @@
-package twoDimensions;
+package meshCreator.twoDimensions;
 
 import java.util.HashSet;
 import java.util.LinkedList;

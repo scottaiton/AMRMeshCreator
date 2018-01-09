@@ -1,4 +1,4 @@
-package threeDimensions;
+package meshCreator.twoDimensions;
 public enum Quad {
 	SW, SE, NW, NE;
 

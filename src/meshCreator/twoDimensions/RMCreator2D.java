@@ -1,4 +1,4 @@
-package threeDimensions;
+package meshCreator.twoDimensions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,21 +16,20 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import meshCreator.threeDimensions.RMCreator3D;
 
-public class AMRMeshCreator extends Application {
+public class RMCreator2D extends Application {
 
-	private AmrCanvasPane panel;
+	private RMCanvasPane panel;
 	// private JFileChooser fc;
 	private ToolBar toolbar;
 	private ToggleGroup mode;
@@ -42,15 +41,6 @@ public class AMRMeshCreator extends Application {
 
 	public void start(Stage primaryStage) {
 		primary_stage = primaryStage;
-		// TODO Auto-generated constructor stub
-		// menubar
-		// JMenuBar menubar = new JMenuBar();
-		// save = new JMenuItem("Save");
-		// reset = new JMenuItem("Reset");
-		// save.addActionListener(this);
-		// reset.addActionListener(this);
-		// menubar.add(save);
-		// menubar.add(reset);
 		root = new QuadTree();
 		refine_button = new ToggleButton("Refine");
 		refine_button.setUserData(Mode.refine);
@@ -75,25 +65,44 @@ public class AMRMeshCreator extends Application {
 		});
 		// add_button.addActionListener(this);
 		toolbar = new ToolBar(refine_button, coarsen_button, add_button);
-		panel = new AmrCanvasPane(root);
+		panel = new RMCanvasPane(root);
 		BorderPane root = new BorderPane();
 		root.setCenter(panel);
 		VBox vbox = new VBox();
 		Menu file_menu = new Menu("File");
 		MenuBar menuBar = new MenuBar();
+		Menu new_menu= new Menu("New");
+		MenuItem new2d_item = new MenuItem("2D Mesh");
+		new2d_item.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+					Stage stage = new Stage();
+					RMCreator2D amc = new RMCreator2D();
+					amc.start(stage);
+			}
+		});
+		MenuItem new3d_item = new MenuItem("3D Mesh");
+		new3d_item.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+					Stage stage = new Stage();
+					RMCreator3D amc = new RMCreator3D();
+					amc.start(stage);
+			}
+		});
+		new_menu.getItems().addAll(new2d_item,new3d_item);
+
 		MenuItem save_item = new MenuItem("Save");
 		save_item.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
 				save();
 			}
 		});
-		file_menu.getItems().add(save_item);
+		file_menu.getItems().addAll(new_menu,save_item);
 		menuBar.getMenus().add(file_menu);
 		vbox.getChildren().addAll(menuBar, toolbar);
 		root.setTop(vbox);
 
 		Scene scene = new Scene(root, 500, 500);
-		primaryStage.setTitle("2D AMR Mesh Creator");
+		primaryStage.setTitle("2D Refined Mesh Creator");
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
@@ -172,10 +181,6 @@ public class AMRMeshCreator extends Application {
 			out.print("\n");
 		}
 		out.close();
-	}
-
-	public static void main(String args[]) {
-		launch(args);
 	}
 
 }

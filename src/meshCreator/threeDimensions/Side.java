@@ -1,7 +1,7 @@
-package twoDimensions;
+package meshCreator.threeDimensions;
 
 public enum Side {
-	WEST, EAST, SOUTH, NORTH;
+	WEST, EAST, SOUTH, NORTH,BOTTOM,TOP;
 	
 	public Side opposite() {
 		switch(this){
@@ -13,8 +13,12 @@ public enum Side {
 			return NORTH;
 		case NORTH:
 			return SOUTH;
+		case BOTTOM:
+			return TOP;
+		case TOP:
+			return BOTTOM;
 		}
-		return NORTH;
+		return null;
 	}
 	
 }

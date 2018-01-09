@@ -1,4 +1,4 @@
-package threeDimensions;
+package meshCreator.twoDimensions;
 
 public class Pair<L,R> {
 

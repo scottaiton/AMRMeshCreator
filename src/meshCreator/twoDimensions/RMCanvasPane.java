@@ -1,4 +1,4 @@
-package twoDimensions;
+package meshCreator.twoDimensions;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,7 +14,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.transform.Translate;
 
-public class AmrCanvasPane extends Pane {
+public class RMCanvasPane extends Pane {
 
 	protected QuadTree root;
 	private double cursor_x = 0;
@@ -26,7 +26,7 @@ public class AmrCanvasPane extends Pane {
 	private Mode mode;
 	private Canvas canvas;
 
-	public AmrCanvasPane(QuadTree root) {
+	public RMCanvasPane(QuadTree root) {
 		this.root=root;
 		/*
 		 * move_adapter=new MoveAdapter(this); addMouseListener(move_adapter);
