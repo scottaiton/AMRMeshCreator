@@ -27,10 +27,10 @@ public class Side {
 		return 2 * dimension;
 	}
 
-	public static ArrayList<Side> getValuesForDimension(int dimension) {
-		ArrayList<Side> ret = new ArrayList<Side>(getNumSidesForDimension(dimension));
+	public static Side[] getValuesForDimension(int dimension) {
+		Side[] ret = new Side[getNumSidesForDimension(2)];
 		for (int i = 0; i < getNumSidesForDimension(dimension); i++) {
-			ret.add(new Side(dimension, i));
+			ret[i]=new Side(dimension, i);
 		}
 		return ret;
 	}

@@ -75,12 +75,12 @@ class SideTest {
 
 	@Test
 	void GetValuesForDimension2() {
-		ArrayList<Side> values = Side.getValuesForDimension(2);
-		assertEquals(values.size(), 4);
-		assertEquals(values.get(0), Side.WEST());
-		assertEquals(values.get(1), Side.EAST());
-		assertEquals(values.get(2), Side.SOUTH());
-		assertEquals(values.get(3), Side.NORTH());
+		Side[] values = Side.getValuesForDimension(2);
+		assertEquals(values.length, 4);
+		assertEquals(values[0], Side.WEST());
+		assertEquals(values[1], Side.EAST());
+		assertEquals(values[2], Side.SOUTH());
+		assertEquals(values[3], Side.NORTH());
 	}
 
 	@Test
