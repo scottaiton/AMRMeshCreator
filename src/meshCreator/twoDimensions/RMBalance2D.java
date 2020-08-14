@@ -9,8 +9,10 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -34,59 +36,75 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import meshCreator.threeDimensions.RMCreator3D;
 
-public class RMCreator2D extends Application {
+public class RMBalance2D extends Application {
 
-	private RMCanvasPane panel;
+	private RMBalancePane panel;
 	// private JFileChooser fc;
 	private ToolBar toolbar;
-	private ToggleGroup mode;
-	private ToggleButton refine_button;
-	private ToggleButton coarsen_button;
-	private ToggleButton add_button;
-	private Button balance_button;
+	private ToggleGroup rank;
+	private ToggleButton[] rank_buttons;
+	private ToggleGroup level;
+	private ToggleButton coarser;
+	private ToggleButton finer;
 	private QuadTree root;
+	private Levels levels;
 	Stage primary_stage;
+
+	public RMBalance2D(QuadTree root_in) {
+		super();
+		root = root_in.deepCopy();
+	}
 
 	public void start(Stage primaryStage) {
 		primary_stage = primaryStage;
-		root = new QuadTree();
-		refine_button = new ToggleButton("Refine");
-		refine_button.setUserData(Mode.refine);
-		// refine_button.addActionListener(this);
-		coarsen_button = new ToggleButton("Coarsen");
-		coarsen_button.setUserData(Mode.coarsen);
-		// coarsen_button.addActionListener(this);
-		add_button = new ToggleButton("Add");
-		add_button.setUserData(Mode.add);
-		mode = new ToggleGroup();
-		refine_button.setToggleGroup(mode);
-		coarsen_button.setToggleGroup(mode);
-		add_button.setToggleGroup(mode);
-		mode.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+		level = new ToggleGroup();
+		rank = new ToggleGroup();
+		toolbar = new ToolBar();
+		ToggleButton finer = new ToggleButton("Finer");
+		finer.setUserData(true);
+		finer.setToggleGroup(level);
+		ToggleButton coarser = new ToggleButton("Coarser");
+		coarser.setUserData(false);
+		coarser.setToggleGroup(level);
+		level.selectToggle(finer);
+		toolbar.getItems().addAll(finer,coarser);
+		for (Integer i = 0; i < 4; i++) {
+			ToggleButton rank_button = new ToggleButton(i.toString());
+			rank_button.setUserData(i);
+			rank_button.setToggleGroup(rank);
+			toolbar.getItems().add(rank_button);
+		}
+		rank.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
 				if (new_toggle == null)
-					panel.setMode(null);
+					panel.setRank(0);
 				else
-					panel.setMode((Mode) mode.getSelectedToggle().getUserData());
+					panel.setRank((Integer) rank.getSelectedToggle().getUserData());
 			}
 		});
-		balance_button = new Button("Balance");
-		balance_button.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent t) {
-				Stage stage = new Stage();
-				RMBalance2D amc = new RMBalance2D(root);
-				amc.start(stage);
-				((Node) (t.getSource())).getScene().getWindow().hide();
+		level.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
+				if (new_toggle == null)
+					panel.setRank(0);
+				else
+					panel.setLevel((boolean) level.getSelectedToggle().getUserData());
 			}
 		});
+
 		// add_button.addActionListener(this);
-		toolbar = new ToolBar(refine_button, coarsen_button, add_button, balance_button);
-		panel = new RMCanvasPane(root);
+		Map<Integer, Color> rank_color_map = new HashMap<Integer, Color>();
+		rank_color_map.put(0, Color.WHITE);
+		rank_color_map.put(1, Color.AQUA);
+		rank_color_map.put(2, Color.GREEN);
+		rank_color_map.put(3, Color.ORANGE);
+		levels = new Levels(root);
+		panel = new RMBalancePane(levels, rank_color_map);
 		BorderPane root = new BorderPane();
 		root.setCenter(panel);
 		VBox vbox = new VBox();
@@ -139,8 +157,6 @@ public class RMCreator2D extends Application {
 
 	private void outputMeshGraphJson(File out_file) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		Levels levels = new Levels(root);
 
 		try {
 			FileWriter writer = new FileWriter(out_file);

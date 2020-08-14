@@ -1,9 +1,12 @@
 package meshCreator.twoDimensions;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -17,18 +20,29 @@ public class QuadTree {
 	public double y_length = 1;
 	public int id;
 
-	public QuadTree parent;
-	private QuadTree children[];
-	private QuadTree nbrs[];
+	private AtomicInteger curr_id;
+	private Map<Integer, QuadTree> tree_map;
+
+	private int parent_id = -1;
+	private int child_ids[];
+	private int nbr_ids[];
 
 	public QuadTree() {
+		tree_map = new HashMap<Integer, QuadTree>();
 		level = 1;
-		nbrs = new QuadTree[4];
+		curr_id = new AtomicInteger();
+		id = curr_id.getAndIncrement();
+		tree_map.put(id, this);
+		nbr_ids = new int[] { -1, -1, -1, -1 };
 	}
 
 	public QuadTree(Quad q, QuadTree parent) {
-		this();
-		this.parent = parent;
+		tree_map = parent.tree_map;
+		curr_id = parent.curr_id;
+		id = curr_id.getAndIncrement();
+		tree_map.put(id, this);
+		nbr_ids = new int[] { -1, -1, -1, -1 };
+		this.parent_id = parent.id;
 		level = parent.level + 1;
 		x_length = parent.x_length / 2;
 		y_length = parent.y_length / 2;
@@ -53,57 +67,105 @@ public class QuadTree {
 
 	}
 
+	private QuadTree(QuadTree t_old, Map<Integer, QuadTree> new_map, AtomicInteger new_curr_id) {
+		level = t_old.level;
+		x_start = t_old.x_start;
+		y_start = t_old.y_start;
+		x_length = t_old.x_length;
+		y_length = t_old.y_length;
+
+		id = t_old.id;
+
+		curr_id = new_curr_id;
+		tree_map = new_map;
+		tree_map.put(id, this);
+
+		parent_id = t_old.parent_id;
+		nbr_ids = new int[4];
+		for (int i = 0; i < 4; i++) {
+			nbr_ids[i] = t_old.nbr_ids[i];
+		}
+		if (t_old.hasChildren()) {
+			child_ids = new int[4];
+			for (int i = 0; i < 4; i++) {
+				child_ids[i] = t_old.child_ids[i];
+			}
+		}
+
+	}
+
+	public QuadTree deepCopy() {
+		AtomicInteger new_curr_id = new AtomicInteger(curr_id.get());
+		Map<Integer, QuadTree> new_tree_map = new HashMap<Integer, QuadTree>();
+		for (QuadTree t : tree_map.values()) {
+			new QuadTree(t, new_tree_map, new_curr_id);
+		}
+		return new_tree_map.get(id);
+	}
+
 	public QuadTree nbr(Side s) {
-		return nbrs[s.ordinal()];
+		return tree_map.get(nbr_ids[s.ordinal()]);
 	}
 
 	public void setNbr(Side s, QuadTree t) {
-		nbrs[s.ordinal()] = t;
+		if (t == null) {
+			nbr_ids[s.ordinal()] = -1;
+		} else {
+			nbr_ids[s.ordinal()] = t.id;
+		}
 	}
 
-	public QuadTree child(Quad q) {
-		return children[q.ordinal()];
+	public boolean hasParent() {
+		return parent_id != -1;
+	}
+
+	public QuadTree getParent() {
+		return tree_map.get(parent_id);
+	}
+
+	public QuadTree getChild(Quad q) {
+		return tree_map.get(child_ids[q.ordinal()]);
 	}
 
 	public void setChild(Quad q, QuadTree t) {
-		children[q.ordinal()] = t;
+		child_ids[q.ordinal()] = t.id;
 	}
 
 	public QuadTree[] children(Side s) {
 		QuadTree[] retval = new QuadTree[2];
 		Quad qs[] = Quad.onSide(s);
-		retval[0] = child(qs[0]);
-		retval[1] = child(qs[1]);
+		retval[0] = getChild(qs[0]);
+		retval[1] = getChild(qs[1]);
 		return retval;
 	}
 
 	public boolean hasChildren() {
-		return children != null;
+		return child_ids != null;
 	}
 
 	public void refine() {
-		children = new QuadTree[4];
+		child_ids = new int[4];
 		for (Quad q : Quad.values()) {
 			setChild(q, new QuadTree(q, this));
 		}
 		// set new neighbors
 		// sw
-		child(Quad.SW).setNbr(Side.EAST, child(Quad.SE));
-		child(Quad.SW).setNbr(Side.NORTH, child(Quad.NW));
+		getChild(Quad.SW).setNbr(Side.EAST, getChild(Quad.SE));
+		getChild(Quad.SW).setNbr(Side.NORTH, getChild(Quad.NW));
 		// se
-		child(Quad.SE).setNbr(Side.WEST, child(Quad.SW));
-		child(Quad.SE).setNbr(Side.NORTH, child(Quad.NE));
+		getChild(Quad.SE).setNbr(Side.WEST, getChild(Quad.SW));
+		getChild(Quad.SE).setNbr(Side.NORTH, getChild(Quad.NE));
 		// nw
-		child(Quad.NW).setNbr(Side.EAST, child(Quad.NE));
-		child(Quad.NW).setNbr(Side.SOUTH, child(Quad.SW));
+		getChild(Quad.NW).setNbr(Side.EAST, getChild(Quad.NE));
+		getChild(Quad.NW).setNbr(Side.SOUTH, getChild(Quad.SW));
 		// ne
-		child(Quad.NE).setNbr(Side.WEST, child(Quad.NW));
-		child(Quad.NE).setNbr(Side.SOUTH, child(Quad.SE));
+		getChild(Quad.NE).setNbr(Side.WEST, getChild(Quad.NW));
+		getChild(Quad.NE).setNbr(Side.SOUTH, getChild(Quad.SE));
 
 		// refine neighbors if needed
 		for (Side s : Side.values()) {
-			if (nbr(s) == null && parent != null && parent.nbr(s) != null) {
-				parent.nbr(s).refine();
+			if (nbr(s) == null && hasParent() && getParent().nbr(s) != null) {
+				getParent().nbr(s).refine();
 			}
 		}
 
@@ -123,7 +185,7 @@ public class QuadTree {
 	public void drawLeafs(GraphicsContext g, int x_orig, int y_orig, double size) {
 		if (hasChildren()) {
 			for (Quad q : Quad.values()) {
-				child(q).drawLeafs(g, x_orig, y_orig, size);
+				getChild(q).drawLeafs(g, x_orig, y_orig, size);
 			}
 		} else {
 			int x_px = x_orig + (int) (x_start * size);
@@ -147,8 +209,8 @@ public class QuadTree {
 	public void refineAt(double x, double y) {
 		if (isInside(x, y)) {
 			if (hasChildren()) {
-				for (QuadTree t : children) {
-					t.refineAt(x, y);
+				for (int child_id : child_ids) {
+					tree_map.get(child_id).refineAt(x, y);
 				}
 			} else {
 				refine();
@@ -159,25 +221,20 @@ public class QuadTree {
 	private boolean isPotentialNbr(Side s, double x, double y) {
 		switch (s) {
 		case WEST:
-			return (x_start - x_length < x && x < x_start && y_start < y && y < y_start
-					+ y_length);
+			return (x_start - x_length < x && x < x_start && y_start < y && y < y_start + y_length);
 
 		case EAST:
-			return (x_start + x_length < x && x < x_start + 2 * x_length
-					&& y_start < y && y < y_start + y_length);
+			return (x_start + x_length < x && x < x_start + 2 * x_length && y_start < y && y < y_start + y_length);
 		case SOUTH:
-			return (x_start < x && x < x_start + x_length
-					&& y_start - y_length < y && y < y_start);
+			return (x_start < x && x < x_start + x_length && y_start - y_length < y && y < y_start);
 		case NORTH:
-			return (x_start < x && x < x_start + x_length
-					&& y_start + y_length < y && y < y_start + 2 * y_length);
+			return (x_start < x && x < x_start + x_length && y_start + y_length < y && y < y_start + 2 * y_length);
 		}
 		return false;
 
 	}
 
-	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig,
-			int size, double x, double y) {
+	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig, int size, double x, double y) {
 		int x_px = 0;
 		int y_px = 0;
 		if (isPotentialNbr(Side.WEST, x, y)) {
@@ -252,22 +309,22 @@ public class QuadTree {
 			}
 		}
 		if (hasChildren()) {
-			for (QuadTree child : children) {
-				child.reconcile();
+			for (int child_id : child_ids) {
+				tree_map.get(child_id).reconcile();
 			}
 		}
 	}
 
 	public boolean isInside(double x, double y) {
-		return (x_start < x && x < x_start + x_length && y_start < y && y < y_start
-				+ y_length);
+		return (x_start < x && x < x_start + x_length && y_start < y && y < y_start + y_length);
 	}
 
 	public void coarsenAt(double x, double y) {
 		if (isInside(x, y)) {
 			if (hasChildren()) {
 				boolean have_coarsend = false;
-				for (QuadTree t : children) {
+				for (int child_id : child_ids) {
+					QuadTree t = tree_map.get(child_id);
 					if (t.isInside(x, y) && t.hasChildren()) {
 						have_coarsend = true;
 						t.coarsenAt(x, y);
@@ -282,7 +339,8 @@ public class QuadTree {
 
 	public void coarsen() {
 		if (hasChildren()) {
-			for (QuadTree t : children) {
+			for (int child_id : child_ids) {
+				QuadTree t = tree_map.get(child_id);
 				// coarsen children if needed
 				if (t.hasChildren()) {
 					t.coarsen();
@@ -300,32 +358,56 @@ public class QuadTree {
 					}
 				}
 			}
-			children = null;
+			for (int child_id : child_ids) {
+				tree_map.remove(child_id);
+			}
+			child_ids = null;
 		}
 	}
 
-	static public void indexNodes(QuadTree root) {
-		int curr_i = 0;
-		Queue<QuadTree> q = new LinkedList<QuadTree>();
-		Set<QuadTree> visited = new HashSet<QuadTree>();
-		q.add(root);
-		while (!q.isEmpty()) {
-			QuadTree curr = q.remove();
-			visited.add(curr);
-			curr.id = curr_i;
-			curr_i++;
-			for (QuadTree t : curr.nbrs) {
-				if (t != null &&!q.contains(t)&& !visited.contains(t)) {
-					q.add(t);
+	public String toJson() {
+		StringBuilder builder = new StringBuilder();
+
+		return null;
+	}
+
+	static public int indexNodes(QuadTree root) {
+		/*
+		 * int curr_i = 0; Queue<QuadTree> q = new LinkedList<QuadTree>(); Set<QuadTree>
+		 * visited = new HashSet<QuadTree>(); q.add(root); while (!q.isEmpty()) {
+		 * QuadTree curr = q.remove(); visited.add(curr); curr.id = curr_i; curr_i++;
+		 * for (QuadTree t : curr.nbrs) { if (t != null &&!q.contains(t)&&
+		 * !visited.contains(t)) { q.add(t); } } if (curr.hasChildren()) { for (QuadTree
+		 * t : curr.children) { if (t != null &&!q.contains(t)&& !visited.contains(t)) {
+		 * q.add(t); } } } } return visited.size();
+		 */
+		return 0;
+	}
+
+	public int getMaxLevel() {
+		int max_level = 0;
+		for (QuadTree t : tree_map.values()) {
+			max_level = Math.max(max_level, t.level);
+		}
+		return max_level;
+	}
+
+	public QuadTree getLeafAt(double x, double y) {
+		// TODO Auto-generated method stub
+		if (isInside(x, y)) {
+			if (hasChildren()) {
+				QuadTree leaf = null;
+				for (int child_id : child_ids) {
+					leaf = tree_map.get(child_id).getLeafAt(x, y);
+					if(leaf!=null)
+						break;
 				}
+				return leaf;
+			} else {
+				return this;
 			}
-			if (curr.hasChildren()) {
-				for (QuadTree t : curr.children) {
-					if (t != null &&!q.contains(t)&& !visited.contains(t)) {
-						q.add(t);
-					}
-				}
-			}
+		}else {
+			return null;
 		}
 	}
 
