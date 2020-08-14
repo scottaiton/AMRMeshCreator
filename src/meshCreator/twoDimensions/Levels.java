@@ -57,7 +57,7 @@ public class Levels {
 			QuadTree curr = q2.remove();
 			visited2.add(curr);
 			patches.add(new Patch(curr, curr_level, max_level));
-			for (Side s : Side.values()) {
+			for (Side s : Side.getValuesForDimension(2)) {
 				if (curr.nbr(s) == null && curr.hasParent() && curr.getParent().nbr(s) != null) {
 					QuadTree next = curr.getParent().nbr(s);
 					if (!q2.contains(next) && !visited2.contains(next)) {

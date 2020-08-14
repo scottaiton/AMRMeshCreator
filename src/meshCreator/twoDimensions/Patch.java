@@ -53,7 +53,7 @@ public class Patch {
 			lengths[i]=node.lengths[i];
 		}
 
-		for (Side side : Side.values()) {
+		for (Side side : Side.getValuesForDimension(2)) {
 			if (node.nbr(side) == null && node.hasParent() && node.getParent().nbr(side) != null) {
 				ArrayList<Integer> ids = new ArrayList<Integer>();
 				ArrayList<Integer> ranks = new ArrayList<Integer>();
@@ -67,7 +67,7 @@ public class Patch {
 			} else if (node.level < curr_level && node.nbr(side) != null && node.nbr(side).hasChildren()) {
 				ArrayList<Integer> ids = new ArrayList<Integer>();
 				ArrayList<Integer> ranks = new ArrayList<Integer>();
-				for (Quad q : Quad.onSide(side.opposite())) {
+				for (Quad q : Quad.onSide(side.getOpposite())) {
 					ids.add(node.nbr(side).getChild(q).id);
 					ranks.add(0);
 				}

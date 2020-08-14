@@ -31,8 +31,8 @@ public class QuadTree {
 		curr_id = new AtomicInteger();
 		id = curr_id.getAndIncrement();
 		tree_map.put(id, this);
-		starts = new double[]{0,0};
-		lengths = new double[]{1,1};
+		starts = new double[] { 0, 0 };
+		lengths = new double[] { 1, 1 };
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 	}
 
@@ -104,14 +104,14 @@ public class QuadTree {
 	}
 
 	public QuadTree nbr(Side s) {
-		return tree_map.get(nbr_ids[s.ordinal()]);
+		return tree_map.get(nbr_ids[s.getIndex()]);
 	}
 
 	public void setNbr(Side s, QuadTree t) {
 		if (t == null) {
-			nbr_ids[s.ordinal()] = -1;
+			nbr_ids[s.getIndex()] = -1;
 		} else {
-			nbr_ids[s.ordinal()] = t.id;
+			nbr_ids[s.getIndex()] = t.id;
 		}
 	}
 
@@ -150,34 +150,34 @@ public class QuadTree {
 		}
 		// set new neighbors
 		// sw
-		getChild(Quad.SW).setNbr(Side.EAST, getChild(Quad.SE));
-		getChild(Quad.SW).setNbr(Side.NORTH, getChild(Quad.NW));
+		getChild(Quad.SW).setNbr(Side.EAST(), getChild(Quad.SE));
+		getChild(Quad.SW).setNbr(Side.NORTH(), getChild(Quad.NW));
 		// se
-		getChild(Quad.SE).setNbr(Side.WEST, getChild(Quad.SW));
-		getChild(Quad.SE).setNbr(Side.NORTH, getChild(Quad.NE));
+		getChild(Quad.SE).setNbr(Side.WEST(), getChild(Quad.SW));
+		getChild(Quad.SE).setNbr(Side.NORTH(), getChild(Quad.NE));
 		// nw
-		getChild(Quad.NW).setNbr(Side.EAST, getChild(Quad.NE));
-		getChild(Quad.NW).setNbr(Side.SOUTH, getChild(Quad.SW));
+		getChild(Quad.NW).setNbr(Side.EAST(), getChild(Quad.NE));
+		getChild(Quad.NW).setNbr(Side.SOUTH(), getChild(Quad.SW));
 		// ne
-		getChild(Quad.NE).setNbr(Side.WEST, getChild(Quad.NW));
-		getChild(Quad.NE).setNbr(Side.SOUTH, getChild(Quad.SE));
+		getChild(Quad.NE).setNbr(Side.WEST(), getChild(Quad.NW));
+		getChild(Quad.NE).setNbr(Side.SOUTH(), getChild(Quad.SE));
 
 		// refine neighbors if needed
-		for (Side s : Side.values()) {
+		for (Side s : Side.getValuesForDimension(2)) {
 			if (nbr(s) == null && hasParent() && getParent().nbr(s) != null) {
 				getParent().nbr(s).refine();
 			}
 		}
 
 		// set outer neighbors
-		for (Side s : Side.values()) {
+		for (Side s : Side.getValuesForDimension(2)) {
 			if (nbr(s) != null && nbr(s).hasChildren()) {
 				QuadTree childs[] = children(s);
-				QuadTree nbr_childs[] = nbr(s).children(s.opposite());
+				QuadTree nbr_childs[] = nbr(s).children(s.getOpposite());
 				childs[0].setNbr(s, nbr_childs[0]);
-				nbr_childs[0].setNbr(s.opposite(), childs[0]);
+				nbr_childs[0].setNbr(s.getOpposite(), childs[0]);
 				childs[1].setNbr(s, nbr_childs[1]);
-				nbr_childs[1].setNbr(s.opposite(), childs[1]);
+				nbr_childs[1].setNbr(s.getOpposite(), childs[1]);
 			}
 		}
 	}
@@ -219,16 +219,16 @@ public class QuadTree {
 	}
 
 	private boolean isPotentialNbr(Side s, double x, double y) {
-		switch (s) {
-		case WEST:
+		if (s.equals(Side.WEST())) {
 			return (starts[0] - lengths[0] < x && x < starts[0] && starts[1] < y && y < starts[1] + lengths[1]);
-
-		case EAST:
-			return (starts[0] + lengths[0] < x && x < starts[0] + 2 * lengths[0] && starts[1] < y && y < starts[1] + lengths[1]);
-		case SOUTH:
+		} else if (s.equals(Side.EAST())) {
+			return (starts[0] + lengths[0] < x && x < starts[0] + 2 * lengths[0] && starts[1] < y
+					&& y < starts[1] + lengths[1]);
+		} else if (s.equals(Side.SOUTH())) {
 			return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] - lengths[1] < y && y < starts[1]);
-		case NORTH:
-			return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] + lengths[1] < y && y < starts[1] + 2 * lengths[1]);
+		} else if (s.equals(Side.NORTH())) {
+			return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] + lengths[1] < y
+					&& y < starts[1] + 2 * lengths[1]);
 		}
 		return false;
 
@@ -237,16 +237,16 @@ public class QuadTree {
 	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig, int size, double x, double y) {
 		int x_px = 0;
 		int y_px = 0;
-		if (isPotentialNbr(Side.WEST, x, y)) {
+		if (isPotentialNbr(Side.WEST(), x, y)) {
 			x_px = x_orig + (int) (starts[0] - lengths[0]) * size;
 			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
-		} else if (isPotentialNbr(Side.EAST, x, y)) {
+		} else if (isPotentialNbr(Side.EAST(), x, y)) {
 			x_px = x_orig + (int) (starts[0] + lengths[0]) * size;
 			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
-		} else if (isPotentialNbr(Side.SOUTH, x, y)) {
+		} else if (isPotentialNbr(Side.SOUTH(), x, y)) {
 			x_px = x_orig + (int) (starts[0]) * size;
 			y_px = y_orig - (int) (starts[1]) * size;
-		} else if (isPotentialNbr(Side.NORTH, x, y)) {
+		} else if (isPotentialNbr(Side.NORTH(), x, y)) {
 			x_px = x_orig + (int) (starts[0]) * size;
 			y_px = y_orig - (int) (starts[1] + 2 * lengths[1]) * size;
 		}
@@ -258,7 +258,7 @@ public class QuadTree {
 	}
 
 	public boolean isPotentialNbr(double x, double y) {
-		for (Side s : Side.values()) {
+		for (Side s : Side.getValuesForDimension(2)) {
 			if (nbr(s) == null && isPotentialNbr(s, x, y))
 				return true;
 		}
@@ -266,7 +266,7 @@ public class QuadTree {
 	}
 
 	public Side getSide(double x, double y) {
-		for (Side s : Side.values()) {
+		for (Side s : Side.getValuesForDimension(2)) {
 			if (isPotentialNbr(s, x, y))
 				return s;
 		}
@@ -277,30 +277,25 @@ public class QuadTree {
 		QuadTree nbr = nbr(s);
 		lengths[0] = nbr.lengths[0];
 		lengths[1] = nbr.lengths[1];
-		switch (s) {
-		case EAST:
+		if (s.equals(Side.EAST())) {
 			starts[0] = nbr.starts[0] - lengths[0];
 			starts[1] = nbr.starts[1];
-			break;
-		case WEST:
+		} else if (s.equals(Side.WEST())) {
 			starts[0] = nbr.starts[0] + lengths[0];
 			starts[1] = nbr.starts[1];
-			break;
-		case NORTH:
+		} else if (s.equals(Side.NORTH())) {
 			starts[0] = nbr.starts[0];
 			starts[1] = nbr.starts[1] - lengths[1];
-			break;
-		case SOUTH:
+		} else if (s.equals(Side.SOUTH())) {
 			starts[0] = nbr.starts[0];
 			starts[1] = nbr.starts[1] + lengths[1];
-			break;
 		}
 	}
 
 	public void reconcile() {
-		for (Side s : Side.values()) {
+		for (Side s : Side.getValuesForDimension(2)) {
 			if (nbr(s) != null && nbr(s).hasChildren()) {
-				for (QuadTree nbr_child : nbr(s).children(s.opposite())) {
+				for (QuadTree nbr_child : nbr(s).children(s.getOpposite())) {
 					if (nbr_child.hasChildren()) {
 						refine();
 						break;
@@ -345,7 +340,7 @@ public class QuadTree {
 				if (t.hasChildren()) {
 					t.coarsen();
 				}
-				for (Side s : Side.values()) {
+				for (Side s : Side.getValuesForDimension(2)) {
 					QuadTree nbr = t.nbr(s);
 					if (nbr != null) {
 						// coarsen nbr if needed
@@ -353,7 +348,7 @@ public class QuadTree {
 							nbr.coarsen();
 						}
 						// null out nbrs
-						nbr.setNbr(s.opposite(), null);
+						nbr.setNbr(s.getOpposite(), null);
 						t.setNbr(s, null);
 					}
 				}
@@ -399,14 +394,14 @@ public class QuadTree {
 				QuadTree leaf = null;
 				for (int child_id : child_ids) {
 					leaf = tree_map.get(child_id).getLeafAt(x, y);
-					if(leaf!=null)
+					if (leaf != null)
 						break;
 				}
 				return leaf;
 			} else {
 				return this;
 			}
-		}else {
+		} else {
 			return null;
 		}
 	}

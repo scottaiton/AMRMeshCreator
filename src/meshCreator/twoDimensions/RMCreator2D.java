@@ -172,7 +172,7 @@ public class RMCreator2D extends Application {
 					QuadTree curr = q2.remove();
 					visited2.add(curr);
 					q.add(curr);
-					for (Side s : Side.values()) {
+					for (Side s : Side.getValuesForDimension(2)) {
 						QuadTree nbr = curr.nbr(s);
 						if (nbr != null && !q2.contains(nbr) && !visited2.contains(nbr)) {
 							q2.add(nbr);
@@ -199,7 +199,7 @@ public class RMCreator2D extends Application {
 				n_buf.putDouble(curr.starts[0]);
 				n_buf.putDouble(curr.starts[1]);
 				// nbrs
-				for (Side s : Side.values()) {
+				for (Side s : Side.getValuesForDimension(2)) {
 					if (curr.nbr(s) == null) {
 						n_buf.putInt(-1);
 					} else {

@@ -108,7 +108,7 @@ public class RMBalancePane extends Pane {
 		while (!queue.isEmpty()) {
 			QuadTree t = queue.remove();
 			drawLeafs(t, 0, (int) size, (int) size);
-			for (Side s : Side.values()) {
+			for (Side s : Side.getValuesForDimension(2)) {
 				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
 					queue.add(t.nbr(s));
 					enqueued.add(t.nbr(s));
@@ -153,7 +153,7 @@ public class RMBalancePane extends Pane {
 				nbrs.add(new Pair<QuadTree, Side>(t, t.getSide(x, y)));
 			}
 
-			for (Side s : Side.values()) {
+			for (Side s : Side.getValuesForDimension(2)) {
 				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
 					queue.add(t.nbr(s));
 					enqueued.add(t.nbr(s));
@@ -174,7 +174,7 @@ public class RMBalancePane extends Pane {
 				nbr = new Pair<QuadTree, Side>(t, t.getSide(x, y));
 				break;
 			}
-			for (Side s : Side.values()) {
+			for (Side s : Side.getValuesForDimension(2)) {
 				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
 					queue.add(t.nbr(s));
 					enqueued.add(t.nbr(s));
@@ -193,10 +193,10 @@ public class RMBalancePane extends Pane {
 				QuadTree nbr = p.getLeft();
 				Side s = p.getRight();
 				if (first == null) {
-					first = s.opposite();
+					first = s.getOpposite();
 				}
 				nbr.setNbr(s, t);
-				t.setNbr(s.opposite(), nbr);
+				t.setNbr(s.getOpposite(), nbr);
 			}
 			t.setRelativeTo(first);
 			t.reconcile();
@@ -213,7 +213,7 @@ public class RMBalancePane extends Pane {
 			QuadTree t = queue.remove();
 			leaf = t.getLeafAt(x, y);
 			if (leaf == null) {
-				for (Side s : Side.values()) {
+				for (Side s : Side.getValuesForDimension(2)) {
 					if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
 						queue.add(t.nbr(s));
 						enqueued.add(t.nbr(s));
