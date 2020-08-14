@@ -210,10 +210,10 @@ public class RMBalance2D extends Application {
 				} else {
 					n_buf.putInt(-1);
 				}
-				n_buf.putDouble(curr.x_length);
-				n_buf.putDouble(curr.y_length);
-				n_buf.putDouble(curr.x_start);
-				n_buf.putDouble(curr.y_start);
+				n_buf.putDouble(curr.lengths[0]);
+				n_buf.putDouble(curr.lengths[1]);
+				n_buf.putDouble(curr.starts[0]);
+				n_buf.putDouble(curr.starts[1]);
 				// nbrs
 				for (Side s : Side.values()) {
 					if (curr.nbr(s) == null) {

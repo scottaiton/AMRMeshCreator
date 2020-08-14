@@ -124,18 +124,18 @@ public class RMBalancePane extends Pane {
 				drawLeafs(node.getChild(q), x_orig, y_orig, size);
 			}
 		} else {
-			int x_px = x_orig + (int) (node.x_start * size);
-			int y_px = y_orig - (int) ((node.y_start + node.y_length) * size);
-			int x_ln = (int) Math.ceil(size * node.x_length);
-			int y_ln = (int) Math.ceil(size * node.y_length);
+			int x_px = x_orig + (int) (node.starts[0] * size);
+			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
+			int x_ln = (int) Math.ceil(size * node.lengths[0]);
+			int y_ln = (int) Math.ceil(size * node.lengths[1]);
 			g.setFill(rank_color_map.get(levels.patch_maps.get(curr_level).get(node.id).rank));
 			g.setStroke(Color.RED);
 			g.fillRect(x_px, y_px, x_ln, y_ln);
 			g.strokeRect(x_px, y_px, x_ln, y_ln);
 		}
 		if (node.level == 1) {
-			int x_px = x_orig + (int) (node.x_start * size);
-			int y_px = y_orig - (int) ((node.y_start + node.y_length) * size);
+			int x_px = x_orig + (int) (node.starts[0] * size);
+			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
 			g.setStroke(Color.BLACK);
 			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
 			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);

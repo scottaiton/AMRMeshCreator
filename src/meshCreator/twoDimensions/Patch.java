@@ -47,12 +47,11 @@ public class Patch {
 			}
 		}
 		starts = new double[2];
-		starts[0] = node.x_start;
-		starts[1] = node.y_start;
-
 		lengths = new double[2];
-		lengths[0] = node.x_length;
-		lengths[1] = node.y_length;
+		for(int i=0;i<2;i++) {
+			starts[i]=node.starts[i];
+			lengths[i]=node.lengths[i];
+		}
 
 		for (Side side : Side.values()) {
 			if (node.nbr(side) == null && node.hasParent() && node.getParent().nbr(side) != null) {

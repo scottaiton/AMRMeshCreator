@@ -14,10 +14,8 @@ import javafx.scene.paint.Color;
 public class QuadTree {
 
 	public int level;
-	public double x_start = 0;
-	public double y_start = 0;
-	public double x_length = 1;
-	public double y_length = 1;
+	public double starts[];
+	public double lengths[];
 	public int id;
 
 	private AtomicInteger curr_id;
@@ -33,6 +31,8 @@ public class QuadTree {
 		curr_id = new AtomicInteger();
 		id = curr_id.getAndIncrement();
 		tree_map.put(id, this);
+		starts = new double[]{0,0};
+		lengths = new double[]{1,1};
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 	}
 
@@ -44,24 +44,24 @@ public class QuadTree {
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 		this.parent_id = parent.id;
 		level = parent.level + 1;
-		x_length = parent.x_length / 2;
-		y_length = parent.y_length / 2;
+		lengths[0] = parent.lengths[0] / 2;
+		lengths[1] = parent.lengths[1] / 2;
 		switch (q) {
 		case SW:
-			x_start = parent.x_start;
-			y_start = parent.y_start;
+			starts[0] = parent.starts[0];
+			starts[1] = parent.starts[1];
 			break;
 		case SE:
-			x_start = parent.x_start + x_length;
-			y_start = parent.y_start;
+			starts[0] = parent.starts[0] + lengths[0];
+			starts[1] = parent.starts[1];
 			break;
 		case NW:
-			x_start = parent.x_start;
-			y_start = parent.y_start + y_length;
+			starts[0] = parent.starts[0];
+			starts[1] = parent.starts[1] + lengths[1];
 			break;
 		case NE:
-			x_start = parent.x_start + x_length;
-			y_start = parent.y_start + y_length;
+			starts[0] = parent.starts[0] + lengths[0];
+			starts[1] = parent.starts[1] + lengths[1];
 			break;
 		}
 
@@ -69,10 +69,10 @@ public class QuadTree {
 
 	private QuadTree(QuadTree t_old, Map<Integer, QuadTree> new_map, AtomicInteger new_curr_id) {
 		level = t_old.level;
-		x_start = t_old.x_start;
-		y_start = t_old.y_start;
-		x_length = t_old.x_length;
-		y_length = t_old.y_length;
+		starts[0] = t_old.starts[0];
+		starts[1] = t_old.starts[1];
+		lengths[0] = t_old.lengths[0];
+		lengths[1] = t_old.lengths[1];
 
 		id = t_old.id;
 
@@ -188,18 +188,18 @@ public class QuadTree {
 				getChild(q).drawLeafs(g, x_orig, y_orig, size);
 			}
 		} else {
-			int x_px = x_orig + (int) (x_start * size);
-			int y_px = y_orig - (int) ((y_start + y_length) * size);
-			int x_ln = (int) Math.ceil(size * x_length);
-			int y_ln = (int) Math.ceil(size * y_length);
+			int x_px = x_orig + (int) (starts[0] * size);
+			int y_px = y_orig - (int) ((starts[1] + lengths[1]) * size);
+			int x_ln = (int) Math.ceil(size * lengths[0]);
+			int y_ln = (int) Math.ceil(size * lengths[1]);
 			g.setFill(Color.WHITE);
 			g.setStroke(Color.RED);
 			g.fillRect(x_px, y_px, x_ln, y_ln);
 			g.strokeRect(x_px, y_px, x_ln, y_ln);
 		}
 		if (level == 1) {
-			int x_px = x_orig + (int) (x_start * size);
-			int y_px = y_orig - (int) ((y_start + y_length) * size);
+			int x_px = x_orig + (int) (starts[0] * size);
+			int y_px = y_orig - (int) ((starts[1] + lengths[1]) * size);
 			g.setStroke(Color.BLACK);
 			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
 			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
@@ -221,14 +221,14 @@ public class QuadTree {
 	private boolean isPotentialNbr(Side s, double x, double y) {
 		switch (s) {
 		case WEST:
-			return (x_start - x_length < x && x < x_start && y_start < y && y < y_start + y_length);
+			return (starts[0] - lengths[0] < x && x < starts[0] && starts[1] < y && y < starts[1] + lengths[1]);
 
 		case EAST:
-			return (x_start + x_length < x && x < x_start + 2 * x_length && y_start < y && y < y_start + y_length);
+			return (starts[0] + lengths[0] < x && x < starts[0] + 2 * lengths[0] && starts[1] < y && y < starts[1] + lengths[1]);
 		case SOUTH:
-			return (x_start < x && x < x_start + x_length && y_start - y_length < y && y < y_start);
+			return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] - lengths[1] < y && y < starts[1]);
 		case NORTH:
-			return (x_start < x && x < x_start + x_length && y_start + y_length < y && y < y_start + 2 * y_length);
+			return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] + lengths[1] < y && y < starts[1] + 2 * lengths[1]);
 		}
 		return false;
 
@@ -238,17 +238,17 @@ public class QuadTree {
 		int x_px = 0;
 		int y_px = 0;
 		if (isPotentialNbr(Side.WEST, x, y)) {
-			x_px = x_orig + (int) (x_start - x_length) * size;
-			y_px = y_orig - (int) (y_start + y_length) * size;
+			x_px = x_orig + (int) (starts[0] - lengths[0]) * size;
+			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
 		} else if (isPotentialNbr(Side.EAST, x, y)) {
-			x_px = x_orig + (int) (x_start + x_length) * size;
-			y_px = y_orig - (int) (y_start + y_length) * size;
+			x_px = x_orig + (int) (starts[0] + lengths[0]) * size;
+			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
 		} else if (isPotentialNbr(Side.SOUTH, x, y)) {
-			x_px = x_orig + (int) (x_start) * size;
-			y_px = y_orig - (int) (y_start) * size;
+			x_px = x_orig + (int) (starts[0]) * size;
+			y_px = y_orig - (int) (starts[1]) * size;
 		} else if (isPotentialNbr(Side.NORTH, x, y)) {
-			x_px = x_orig + (int) (x_start) * size;
-			y_px = y_orig - (int) (y_start + 2 * y_length) * size;
+			x_px = x_orig + (int) (starts[0]) * size;
+			y_px = y_orig - (int) (starts[1] + 2 * lengths[1]) * size;
 		}
 		g.setFill(Color.LIGHTGRAY);
 		g.setStroke(Color.BLACK);
@@ -275,24 +275,24 @@ public class QuadTree {
 
 	public void setRelativeTo(Side s) {
 		QuadTree nbr = nbr(s);
-		x_length = nbr.x_length;
-		y_length = nbr.y_length;
+		lengths[0] = nbr.lengths[0];
+		lengths[1] = nbr.lengths[1];
 		switch (s) {
 		case EAST:
-			x_start = nbr.x_start - x_length;
-			y_start = nbr.y_start;
+			starts[0] = nbr.starts[0] - lengths[0];
+			starts[1] = nbr.starts[1];
 			break;
 		case WEST:
-			x_start = nbr.x_start + x_length;
-			y_start = nbr.y_start;
+			starts[0] = nbr.starts[0] + lengths[0];
+			starts[1] = nbr.starts[1];
 			break;
 		case NORTH:
-			x_start = nbr.x_start;
-			y_start = nbr.y_start - y_length;
+			starts[0] = nbr.starts[0];
+			starts[1] = nbr.starts[1] - lengths[1];
 			break;
 		case SOUTH:
-			x_start = nbr.x_start;
-			y_start = nbr.y_start + y_length;
+			starts[0] = nbr.starts[0];
+			starts[1] = nbr.starts[1] + lengths[1];
 			break;
 		}
 	}
@@ -316,7 +316,7 @@ public class QuadTree {
 	}
 
 	public boolean isInside(double x, double y) {
-		return (x_start < x && x < x_start + x_length && y_start < y && y < y_start + y_length);
+		return (starts[0] < x && x < starts[0] + lengths[0] && starts[1] < y && y < starts[1] + lengths[1]);
 	}
 
 	public void coarsenAt(double x, double y) {
