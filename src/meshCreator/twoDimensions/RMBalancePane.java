@@ -8,7 +8,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
@@ -248,8 +247,8 @@ public class RMBalancePane extends Pane {
 		super.layoutChildren();
 		final double x = snappedLeftInset();
 		final double y = snappedTopInset();
-		final double w = snapSize(getWidth()) - x - snappedRightInset();
-		final double h = snapSize(getHeight()) - y - snappedBottomInset();
+		final double w = snapSizeX(getWidth()) - x - snappedRightInset();
+		final double h = snapSizeY(getHeight()) - y - snappedBottomInset();
 		canvas.setLayoutX(x);
 		canvas.setLayoutY(y);
 		canvas.setWidth(w);

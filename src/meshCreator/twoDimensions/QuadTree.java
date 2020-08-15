@@ -167,30 +167,6 @@ public class QuadTree {
 		}
 	}
 
-	public void drawLeafs(GraphicsContext g, int x_orig, int y_orig, double size) {
-		if (hasChildren()) {
-			for (Orthant q : Orthant.getValuesForDimension(2)) {
-				getChild(q).drawLeafs(g, x_orig, y_orig, size);
-			}
-		} else {
-			int x_px = x_orig + (int) (starts[0] * size);
-			int y_px = y_orig - (int) ((starts[1] + lengths[1]) * size);
-			int x_ln = (int) Math.ceil(size * lengths[0]);
-			int y_ln = (int) Math.ceil(size * lengths[1]);
-			g.setFill(Color.WHITE);
-			g.setStroke(Color.RED);
-			g.fillRect(x_px, y_px, x_ln, y_ln);
-			g.strokeRect(x_px, y_px, x_ln, y_ln);
-		}
-		if (level == 1) {
-			int x_px = x_orig + (int) (starts[0] * size);
-			int y_px = y_orig - (int) ((starts[1] + lengths[1]) * size);
-			g.setStroke(Color.BLACK);
-			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
-			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
-		}
-	}
-
 	public void refineAt(double x, double y) {
 		if (isInside(x, y)) {
 			if (hasChildren()) {
@@ -203,7 +179,7 @@ public class QuadTree {
 		}
 	}
 
-	private boolean isPotentialNbr(Side s, double x, double y) {
+	public boolean isPotentialNbr(Side s, double x, double y) {
 		if (s.equals(Side.WEST())) {
 			return (starts[0] - lengths[0] < x && x < starts[0] && starts[1] < y && y < starts[1] + lengths[1]);
 		} else if (s.equals(Side.EAST())) {
@@ -219,28 +195,7 @@ public class QuadTree {
 
 	}
 
-	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig, int size, double x, double y) {
-		int x_px = 0;
-		int y_px = 0;
-		if (isPotentialNbr(Side.WEST(), x, y)) {
-			x_px = x_orig + (int) (starts[0] - lengths[0]) * size;
-			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
-		} else if (isPotentialNbr(Side.EAST(), x, y)) {
-			x_px = x_orig + (int) (starts[0] + lengths[0]) * size;
-			y_px = y_orig - (int) (starts[1] + lengths[1]) * size;
-		} else if (isPotentialNbr(Side.SOUTH(), x, y)) {
-			x_px = x_orig + (int) (starts[0]) * size;
-			y_px = y_orig - (int) (starts[1]) * size;
-		} else if (isPotentialNbr(Side.NORTH(), x, y)) {
-			x_px = x_orig + (int) (starts[0]) * size;
-			y_px = y_orig - (int) (starts[1] + 2 * lengths[1]) * size;
-		}
-		g.setFill(Color.LIGHTGRAY);
-		g.setStroke(Color.BLACK);
-		g.fillRect(x_px, y_px, size, size);
-		g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
-		g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
-	}
+
 
 	public boolean isPotentialNbr(double x, double y) {
 		for (Side s : Side.getValuesForDimension(2)) {
@@ -345,12 +300,6 @@ public class QuadTree {
 		}
 	}
 
-	public String toJson() {
-		StringBuilder builder = new StringBuilder();
-
-		return null;
-	}
-
 	static public int indexNodes(QuadTree root) {
 		/*
 		 * int curr_i = 0; Queue<QuadTree> q = new LinkedList<QuadTree>(); Set<QuadTree>
@@ -373,7 +322,6 @@ public class QuadTree {
 	}
 
 	public QuadTree getLeafAt(double x, double y) {
-		// TODO Auto-generated method stub
 		if (isInside(x, y)) {
 			if (hasChildren()) {
 				QuadTree leaf = null;
