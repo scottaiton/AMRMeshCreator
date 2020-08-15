@@ -6,7 +6,6 @@ import java.util.Queue;
 import java.util.Set;
 
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 

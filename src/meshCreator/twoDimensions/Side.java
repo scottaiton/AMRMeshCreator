@@ -23,14 +23,26 @@ public class Side {
 		this.val = val;
 	}
 
+	/**
+	 * Get the number of valid values for a given dimension
+	 * 
+	 * @param dimension the number of Cartesian dimensions
+	 * @return the number of values
+	 */
 	public static int getNumSidesForDimension(int dimension) {
 		return 2 * dimension;
 	}
 
+	/**
+	 * Get an array of all the valid values for a given dimension
+	 * 
+	 * @param dimension the number of Cartesian dimensions
+	 * @return the array of values
+	 */
 	public static Side[] getValuesForDimension(int dimension) {
-		Side[] ret = new Side[getNumSidesForDimension(2)];
+		Side[] ret = new Side[getNumSidesForDimension(dimension)];
 		for (int i = 0; i < getNumSidesForDimension(dimension); i++) {
-			ret[i]=new Side(dimension, i);
+			ret[i] = new Side(dimension, i);
 		}
 		return ret;
 	}
@@ -103,6 +115,44 @@ public class Side {
 		Side s = (Side) o;
 
 		return s.dimension == dimension && s.val == val;
+	}
+
+	/**
+	 * Get the axis that this side lies on
+	 * 
+	 * @return the axis
+	 */
+	public Integer getAxis() {
+		return val >> 1;
+	}
+
+	/**
+	 * Return whether this side is lower on its axis
+	 * 
+	 * @return whether this side is lower on its axis
+	 */
+	public boolean isLowerOnAxis() {
+		return (val & 0b1) == 0;
+	}
+
+	@Override
+	public String toString() {
+		String str = new String();
+		if (dimension == 2) {
+			if (this.equals(Side.WEST())) {
+				str = "WEST";
+			} else if (this.equals(Side.EAST())) {
+				str = "EAST";
+			} else if (this.equals(Side.SOUTH())) {
+				str = "SOUTH";
+			} else if (this.equals(Side.NORTH())) {
+				str = "NORTH";
+			}
+		}
+		if (str.isEmpty()) {
+			str = "Dimension: " + dimension + " Value: " + val;
+		}
+		return str;
 	}
 
 }

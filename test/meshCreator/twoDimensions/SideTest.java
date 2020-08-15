@@ -69,6 +69,46 @@ class SideTest {
 	}
 
 	@Test
+	void WestGetAxis() {
+		assertEquals(Side.WEST().getAxis(), 0);
+	}
+
+	@Test
+	void EastGetAxis() {
+		assertEquals(Side.EAST().getAxis(), 0);
+	}
+
+	@Test
+	void SouthGetAxis() {
+		assertEquals(Side.SOUTH().getAxis(), 1);
+	}
+
+	@Test
+	void NorthGetAxis() {
+		assertEquals(Side.NORTH().getAxis(), 1);
+	}
+
+	@Test
+	void WestIsLowerOnAxis() {
+		assertTrue(Side.WEST().isLowerOnAxis());
+	}
+
+	@Test
+	void EastIsLowerOnAxis() {
+		assertFalse(Side.EAST().isLowerOnAxis());
+	}
+
+	@Test
+	void SouthIsLowerOnAxis() {
+		assertTrue(Side.SOUTH().isLowerOnAxis());
+	}
+
+	@Test
+	void NorthIsLowerOnAxis() {
+		assertFalse(Side.NORTH().isLowerOnAxis());
+	}
+
+	@Test
 	void GetNumSidesForDimension2() {
 		assertEquals(Side.getNumSidesForDimension(2), 4);
 	}
@@ -106,7 +146,37 @@ class SideTest {
 	@Test
 	void EqualsDifferentSideDifferentDimension() {
 		Side s1 = Side.WEST();
-		Side s2 = new Side(3,0);
+		Side s2 = new Side(3, 0);
 		assertNotEquals(s1, s2);
+	}
+
+	@Test
+	void WestToString() {
+		assertEquals(Side.WEST().toString(), "WEST");
+	}
+
+	@Test
+	void EastToString() {
+		assertEquals(Side.EAST().toString(), "EAST");
+	}
+
+	@Test
+	void SouthToString() {
+		assertEquals(Side.SOUTH().toString(), "SOUTH");
+	}
+
+	@Test
+	void NorthToString() {
+		assertEquals(Side.NORTH().toString(), "NORTH");
+	}
+
+	@Test
+	void ToString2_4() {
+		assertEquals((new Side(2, 4)).toString(), "Dimension: 2 Value: 4");
+	}
+
+	@Test
+	void ToString3_4() {
+		assertEquals((new Side(3, 4)).toString(), "Dimension: 3 Value: 4");
 	}
 }

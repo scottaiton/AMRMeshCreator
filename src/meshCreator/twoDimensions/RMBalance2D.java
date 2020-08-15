@@ -223,7 +223,7 @@ public class RMBalance2D extends Application {
 					}
 				}
 				if (curr.hasChildren()) {
-					for (Quad o : Quad.values()) {
+					for (Orthant o : Orthant.getValuesForDimension(2)) {
 						QuadTree nbr = curr.getChild(o);
 						if (!q.contains(nbr) && !visited.contains(nbr)) {
 							q.add(nbr);

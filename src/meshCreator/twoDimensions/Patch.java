@@ -31,15 +31,15 @@ public class Patch {
 			} else {
 				parent_id = node.getParent().id;
 				orth_on_parent = 0;
-				while (node != node.getParent().getChild(Quad.values()[orth_on_parent])) {
+				while (node != node.getParent().getChild(Orthant.getValuesForDimension(2)[orth_on_parent])) {
 					orth_on_parent++;
 				}
 			}
 			if (node.hasChildren()) {
 				child_ids = new int[4];
 				child_ranks = new int[4];
-				for (Quad q : Quad.values()) {
-					child_ids[q.ordinal()] = node.getChild(q).id;
+				for (Orthant q : Orthant.getValuesForDimension(2)) {
+					child_ids[q.getIndex()] = node.getChild(q).id;
 				}
 			} else if (curr_level < num_levels) {
 				child_ids = new int[] { node.id, -1, -1, -1 };
@@ -60,14 +60,14 @@ public class Patch {
 				ids.add(node.getParent().nbr(side).id);
 				ranks.add(0);
 				int orth_on_coarse = 0;
-				if (orth_on_parent == Quad.onSide(side)[1].ordinal()) {
+				if (orth_on_parent == Orthant.GetValuesOnSide(2,side)[1].getIndex()) {
 					orth_on_coarse = 1;
 				}
 				nbrs.add(new Neighbor(side.toString(), "coarse", ids, ranks, orth_on_coarse));
 			} else if (node.level < curr_level && node.nbr(side) != null && node.nbr(side).hasChildren()) {
 				ArrayList<Integer> ids = new ArrayList<Integer>();
 				ArrayList<Integer> ranks = new ArrayList<Integer>();
-				for (Quad q : Quad.onSide(side.getOpposite())) {
+				for (Orthant q : Orthant.GetValuesOnSide(2,side.getOpposite())) {
 					ids.add(node.nbr(side).getChild(q).id);
 					ranks.add(0);
 				}

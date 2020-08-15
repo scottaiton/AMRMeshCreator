@@ -36,7 +36,7 @@ public class QuadTree {
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 	}
 
-	public QuadTree(Quad q, QuadTree parent) {
+	public QuadTree(Orthant q, QuadTree parent) {
 		tree_map = parent.tree_map;
 		curr_id = parent.curr_id;
 		id = curr_id.getAndIncrement();
@@ -44,33 +44,25 @@ public class QuadTree {
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 		this.parent_id = parent.id;
 		level = parent.level + 1;
-		lengths[0] = parent.lengths[0] / 2;
-		lengths[1] = parent.lengths[1] / 2;
-		switch (q) {
-		case SW:
-			starts[0] = parent.starts[0];
-			starts[1] = parent.starts[1];
-			break;
-		case SE:
-			starts[0] = parent.starts[0] + lengths[0];
-			starts[1] = parent.starts[1];
-			break;
-		case NW:
-			starts[0] = parent.starts[0];
-			starts[1] = parent.starts[1] + lengths[1];
-			break;
-		case NE:
-			starts[0] = parent.starts[0] + lengths[0];
-			starts[1] = parent.starts[1] + lengths[1];
-			break;
-		}
 
+		lengths = new double[2];
+		starts = new double[2];
+		for (int axis = 0; axis < 2; axis++) {
+			lengths[axis] = parent.lengths[axis] / 2;
+			if (q.isLowerOnAxis(axis)) {
+				starts[axis] = parent.starts[axis];
+			} else {
+				starts[axis] = parent.starts[axis] + lengths[axis];
+			}
+		}
 	}
 
 	private QuadTree(QuadTree t_old, Map<Integer, QuadTree> new_map, AtomicInteger new_curr_id) {
 		level = t_old.level;
+		starts = new double[2];
 		starts[0] = t_old.starts[0];
 		starts[1] = t_old.starts[1];
+		lengths = new double[2];
 		lengths[0] = t_old.lengths[0];
 		lengths[1] = t_old.lengths[1];
 
@@ -123,17 +115,17 @@ public class QuadTree {
 		return tree_map.get(parent_id);
 	}
 
-	public QuadTree getChild(Quad q) {
-		return tree_map.get(child_ids[q.ordinal()]);
+	public QuadTree getChild(Orthant q) {
+		return tree_map.get(child_ids[q.getIndex()]);
 	}
 
-	public void setChild(Quad q, QuadTree t) {
-		child_ids[q.ordinal()] = t.id;
+	public void setChild(Orthant q, QuadTree t) {
+		child_ids[q.getIndex()] = t.id;
 	}
 
 	public QuadTree[] children(Side s) {
 		QuadTree[] retval = new QuadTree[2];
-		Quad qs[] = Quad.onSide(s);
+		Orthant qs[] = Orthant.GetValuesOnSide(2, s);
 		retval[0] = getChild(qs[0]);
 		retval[1] = getChild(qs[1]);
 		return retval;
@@ -145,22 +137,15 @@ public class QuadTree {
 
 	public void refine() {
 		child_ids = new int[4];
-		for (Quad q : Quad.values()) {
+		for (Orthant q : Orthant.getValuesForDimension(2)) {
 			setChild(q, new QuadTree(q, this));
 		}
 		// set new neighbors
-		// sw
-		getChild(Quad.SW).setNbr(Side.EAST(), getChild(Quad.SE));
-		getChild(Quad.SW).setNbr(Side.NORTH(), getChild(Quad.NW));
-		// se
-		getChild(Quad.SE).setNbr(Side.WEST(), getChild(Quad.SW));
-		getChild(Quad.SE).setNbr(Side.NORTH(), getChild(Quad.NE));
-		// nw
-		getChild(Quad.NW).setNbr(Side.EAST(), getChild(Quad.NE));
-		getChild(Quad.NW).setNbr(Side.SOUTH(), getChild(Quad.SW));
-		// ne
-		getChild(Quad.NE).setNbr(Side.WEST(), getChild(Quad.NW));
-		getChild(Quad.NE).setNbr(Side.SOUTH(), getChild(Quad.SE));
+		for (Orthant orth : Orthant.getValuesForDimension(2)) {
+			for (Side s : orth.getInteriorSides()) {
+				getChild(orth).setNbr(s, getChild(orth.getNbrOnSide(s)));
+			}
+		}
 
 		// refine neighbors if needed
 		for (Side s : Side.getValuesForDimension(2)) {
@@ -184,7 +169,7 @@ public class QuadTree {
 
 	public void drawLeafs(GraphicsContext g, int x_orig, int y_orig, double size) {
 		if (hasChildren()) {
-			for (Quad q : Quad.values()) {
+			for (Orthant q : Orthant.getValuesForDimension(2)) {
 				getChild(q).drawLeafs(g, x_orig, y_orig, size);
 			}
 		} else {

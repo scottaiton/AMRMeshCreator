@@ -120,7 +120,7 @@ public class RMBalancePane extends Pane {
 	public void drawLeafs(QuadTree node, int x_orig, int y_orig, double size) {
 		GraphicsContext g = canvas.getGraphicsContext2D();
 		if (node.hasChildren()) {
-			for (Quad q : Quad.values()) {
+			for (Orthant q : Orthant.getValuesForDimension(2)) {
 				drawLeafs(node.getChild(q), x_orig, y_orig, size);
 			}
 		} else {

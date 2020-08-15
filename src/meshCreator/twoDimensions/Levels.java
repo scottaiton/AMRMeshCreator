@@ -50,7 +50,7 @@ public class Levels {
 		Set<QuadTree> visited2 = new HashSet<QuadTree>();
 		QuadTree finest_node = trees.get(max_level - curr_level);
 		while (finest_node.hasChildren() && finest_node.level < curr_level) {
-			finest_node = finest_node.getChild(Quad.SW);
+			finest_node = finest_node.getChild(Orthant.SW());
 		}
 		q2.add(finest_node);
 		while (!q2.isEmpty()) {
@@ -64,7 +64,7 @@ public class Levels {
 						q2.add(next);
 					}
 				} else if (curr.level < curr_level && curr.nbr(s) != null && curr.nbr(s).hasChildren()) {
-					QuadTree next = curr.nbr(s).getChild(Quad.SW);
+					QuadTree next = curr.nbr(s).getChild(Orthant.SW());
 					if (!q2.contains(next) && !visited2.contains(next)) {
 						q2.add(next);
 					}
