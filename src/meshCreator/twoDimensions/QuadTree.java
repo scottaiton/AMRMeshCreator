@@ -21,11 +21,12 @@ public class QuadTree {
 	private AtomicInteger curr_id;
 	private Map<Integer, QuadTree> tree_map;
 
-	private int parent_id = -1;
+	private int parent_id;
 	private int child_ids[];
 	private int nbr_ids[];
 
 	public QuadTree() {
+		parent_id = -1;
 		tree_map = new HashMap<Integer, QuadTree>();
 		level = 1;
 		curr_id = new AtomicInteger();
@@ -36,7 +37,7 @@ public class QuadTree {
 		nbr_ids = new int[] { -1, -1, -1, -1 };
 	}
 
-	public QuadTree(Orthant q, QuadTree parent) {
+	private QuadTree(Orthant q, QuadTree parent) {
 		tree_map = parent.tree_map;
 		curr_id = parent.curr_id;
 		id = curr_id.getAndIncrement();
@@ -195,8 +196,6 @@ public class QuadTree {
 
 	}
 
-
-
 	public boolean isPotentialNbr(double x, double y) {
 		for (Side s : Side.getValuesForDimension(2)) {
 			if (nbr(s) == null && isPotentialNbr(s, x, y))
@@ -298,19 +297,6 @@ public class QuadTree {
 			}
 			child_ids = null;
 		}
-	}
-
-	static public int indexNodes(QuadTree root) {
-		/*
-		 * int curr_i = 0; Queue<QuadTree> q = new LinkedList<QuadTree>(); Set<QuadTree>
-		 * visited = new HashSet<QuadTree>(); q.add(root); while (!q.isEmpty()) {
-		 * QuadTree curr = q.remove(); visited.add(curr); curr.id = curr_i; curr_i++;
-		 * for (QuadTree t : curr.nbrs) { if (t != null &&!q.contains(t)&&
-		 * !visited.contains(t)) { q.add(t); } } if (curr.hasChildren()) { for (QuadTree
-		 * t : curr.children) { if (t != null &&!q.contains(t)&& !visited.contains(t)) {
-		 * q.add(t); } } } } return visited.size();
-		 */
-		return 0;
 	}
 
 	public int getMaxLevel() {
