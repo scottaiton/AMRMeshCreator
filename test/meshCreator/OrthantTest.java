@@ -1,10 +1,13 @@
-package meshCreator.twoDimensions;
+package meshCreator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+
+import meshCreator.Orthant;
+import meshCreator.Side;
 
 class OrthantTest {
 

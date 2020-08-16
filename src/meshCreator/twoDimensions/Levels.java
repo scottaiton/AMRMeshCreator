@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import meshCreator.Orthant;
+import meshCreator.Side;
+
 public class Levels {
 	public ArrayList<ArrayList<Patch>> levels;
 	public transient ArrayList<QuadTree> trees;

@@ -1,4 +1,4 @@
-package meshCreator.twoDimensions;
+package meshCreator;
 
 public class Orthant {
 	/**

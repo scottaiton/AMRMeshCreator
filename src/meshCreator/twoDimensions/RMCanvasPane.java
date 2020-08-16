@@ -14,6 +14,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Translate;
+import meshCreator.Orthant;
+import meshCreator.Side;
 
 public class RMCanvasPane extends Pane {
 

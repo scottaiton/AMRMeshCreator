@@ -2,6 +2,9 @@ package meshCreator.twoDimensions;
 
 import java.util.ArrayList;
 
+import meshCreator.Orthant;
+import meshCreator.Side;
+
 public class Patch {
 	public int id;
 	public int parent_id;

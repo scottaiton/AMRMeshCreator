@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import meshCreator.Orthant;
+import meshCreator.Side;
 
 public class QuadTree {
 
