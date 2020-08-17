@@ -40,6 +40,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import meshCreator.Forest;
 import meshCreator.threeDimensions.RMCreator3D;
 
 public class RMBalance2D extends Application {
@@ -52,13 +53,12 @@ public class RMBalance2D extends Application {
 	private ToggleGroup level;
 	private ToggleButton coarser;
 	private ToggleButton finer;
-	private QuadTree root;
+	private Forest forest;
 	private Levels levels;
 	Stage primary_stage;
 
-	public RMBalance2D(QuadTree root_in) {
+	public RMBalance2D(Forest forest_in) {
 		super();
-		root = root_in.deepCopy();
 	}
 
 	public void start(Stage primaryStage) {
@@ -103,7 +103,7 @@ public class RMBalance2D extends Application {
 		rank_color_map.put(1, Color.AQUA);
 		rank_color_map.put(2, Color.GREEN);
 		rank_color_map.put(3, Color.ORANGE);
-		levels = new Levels(root);
+		levels = new Levels(forest);
 		panel = new RMBalancePane(levels, rank_color_map);
 		BorderPane root = new BorderPane();
 		root.setCenter(panel);

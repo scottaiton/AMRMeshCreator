@@ -16,6 +16,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Translate;
+import meshCreator.Forest;
+import meshCreator.Node;
 import meshCreator.Orthant;
 import meshCreator.Side;
 
@@ -97,146 +99,59 @@ public class RMBalancePane extends Pane {
 		Translate r = new Translate(x_trans, y_trans);
 		g.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
 		g.clearRect(-x_trans, -y_trans, canvas.getWidth(), canvas.getHeight());
-		drawLeafs();
+		drawLeafs(g);
 	}
 
-	private void drawLeafs() {
-		GraphicsContext g = canvas.getGraphicsContext2D();
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(levels.trees.get(curr_level));
-		enqueued.add(levels.trees.get(curr_level));
+	private void drawLeafs(GraphicsContext g) {
+		Queue<Integer> queue = new LinkedList<Integer>();
+		Forest forest = levels.forests.get(curr_level);
+		for (int id : forest.getRootIds()) {
+			queue.add(id);
+		}
 		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			drawLeafs(t, 0, (int) size, (int) size);
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
+			Node n = forest.getNode(queue.remove());
+			if (n.hasChildren()) {
+				for (Orthant o : Orthant.getValuesForDimension(2)) {
+					queue.add(n.getChildId(o));
 				}
+			} else {
+				int x_px = 0 + (int) (n.getStart(0) * size);
+				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
+				int x_ln = (int) Math.ceil(size * n.getLength(0));
+				int y_ln = (int) Math.ceil(size * n.getLength(1));
+				g.setFill(Color.WHITE);
+				g.setStroke(Color.RED);
+				g.fillRect(x_px, y_px, x_ln, y_ln);
+				g.strokeRect(x_px, y_px, x_ln, y_ln);
+			}
+			if (n.getLevel() == 0) {
+				int x_px = 0 + (int) (n.getStart(0) * size);
+				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
+				g.setStroke(Color.BLACK);
+				g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
+				g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 			}
 		}
-	}
-
-	public void drawLeafs(QuadTree node, int x_orig, int y_orig, double size) {
-		GraphicsContext g = canvas.getGraphicsContext2D();
-		if (node.hasChildren()) {
-			for (Orthant q : Orthant.getValuesForDimension(2)) {
-				drawLeafs(node.getChild(q), x_orig, y_orig, size);
-			}
-		} else {
-			int x_px = x_orig + (int) (node.starts[0] * size);
-			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
-			int x_ln = (int) Math.ceil(size * node.lengths[0]);
-			int y_ln = (int) Math.ceil(size * node.lengths[1]);
-			g.setFill(rank_color_map.get(levels.patch_maps.get(curr_level).get(node.id).rank));
-			g.setStroke(Color.RED);
-			g.fillRect(x_px, y_px, x_ln, y_ln);
-			g.strokeRect(x_px, y_px, x_ln, y_ln);
-		}
-		if (node.level == 1) {
-			int x_px = x_orig + (int) (node.starts[0] * size);
-			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
-			g.setStroke(Color.BLACK);
-			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
-			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
-		}
-	}
-
-	public Set<Pair<QuadTree, Side>> getNbrsOf(double x, double y) {
-		Set<Pair<QuadTree, Side>> nbrs = new HashSet<Pair<QuadTree, Side>>();
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(levels.trees.get(curr_level));
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			if (t.isPotentialNbr(x, y)) {
-				nbrs.add(new Pair<QuadTree, Side>(t, t.getSide(x, y)));
-			}
-
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
-		return nbrs;
-	}
-
-	public Pair<QuadTree, Side> getNbrOf(double x, double y) {
-		Pair<QuadTree, Side> nbr = null;
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(levels.trees.get(curr_level));
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			if (t.isPotentialNbr(x, y)) {
-				nbr = new Pair<QuadTree, Side>(t, t.getSide(x, y));
-				break;
-			}
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
-		return nbr;
-	}
-
-	public void addNbrAt(double x, double y) {
-		Set<Pair<QuadTree, Side>> pairs = getNbrsOf(x, y);
-		if (!pairs.isEmpty()) {
-			QuadTree t = new QuadTree();
-			Side first = null;
-			for (Pair<QuadTree, Side> p : pairs) {
-				QuadTree nbr = p.getLeft();
-				Side s = p.getRight();
-				if (first == null) {
-					first = s.getOpposite();
-				}
-				nbr.setNbr(s, t);
-				t.setNbr(s.getOpposite(), nbr);
-			}
-			t.setRelativeTo(first);
-			t.reconcile();
-		}
-		paint();
 	}
 
 	public void changeRankAt(double x, double y) {
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(levels.trees.get(curr_level));
-		QuadTree leaf = null;
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			leaf = t.getLeafAt(x, y);
-			if (leaf == null) {
-				for (Side s : Side.getValuesForDimension(2)) {
-					if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-						queue.add(t.nbr(s));
-						enqueued.add(t.nbr(s));
-					}
-				}
-			}
-		}
+		double[] coord = { x, y };
+		Node leaf = levels.forests.get(curr_level).getLeafAt(coord);
 		if (leaf != null) {
-			Patch p = levels.patch_maps.get(curr_level).get(leaf.id);
+			Patch p = levels.patch_maps.get(curr_level).get(leaf.getId());
 			p.rank = current_rank;
 			for (Neighbor nbr : p.nbrs) {
 				for (int id : nbr.ids) {
-					levels.patch_maps.get(curr_level).get(id).updateNbrRankFor(leaf.id, current_rank);
+					levels.patch_maps.get(curr_level).get(id).updateNbrRankFor(leaf.getId(), current_rank);
 				}
 			}
-			if (curr_level < levels.trees.size() - 1 && p.hasParent()) {
-				levels.patch_maps.get(curr_level + 1).get(p.parent_id).updateChildRankFor(leaf.id, current_rank);
+			if (curr_level < levels.forests.size() - 1 && p.hasParent()) {
+				levels.patch_maps.get(curr_level + 1).get(p.parent_id).updateChildRankFor(leaf.getId(), current_rank);
 			}
 			if (curr_level > 0 && p.hasChildren()) {
 				for (int i = 0; i < 4; i++) {
 					if (p.child_ids[i] != -1) {
-						levels.patch_maps.get(curr_level-1).get(p.child_ids[i]).updateParentRank(current_rank);
+						levels.patch_maps.get(curr_level - 1).get(p.child_ids[i]).updateParentRank(current_rank);
 					}
 				}
 			}

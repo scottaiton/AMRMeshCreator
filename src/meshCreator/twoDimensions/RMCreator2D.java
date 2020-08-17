@@ -37,6 +37,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import meshCreator.Forest;
 import meshCreator.threeDimensions.RMCreator3D;
 
 public class RMCreator2D extends Application {
@@ -49,12 +50,12 @@ public class RMCreator2D extends Application {
 	private ToggleButton coarsen_button;
 	private ToggleButton add_button;
 	private Button balance_button;
-	private QuadTree root;
+	private Forest forest;
 	Stage primary_stage;
 
 	public void start(Stage primaryStage) {
 		primary_stage = primaryStage;
-		root = new QuadTree();
+		forest = new Forest(2);
 		refine_button = new ToggleButton("Refine");
 		refine_button.setUserData(Mode.refine);
 		// refine_button.addActionListener(this);
@@ -79,14 +80,14 @@ public class RMCreator2D extends Application {
 		balance_button.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
 				Stage stage = new Stage();
-				RMBalance2D amc = new RMBalance2D(root);
+				RMBalance2D amc = new RMBalance2D(forest);
 				amc.start(stage);
 				((Node) (t.getSource())).getScene().getWindow().hide();
 			}
 		});
 		// add_button.addActionListener(this);
 		toolbar = new ToolBar(refine_button, coarsen_button, add_button, balance_button);
-		panel = new RMCanvasPane(root);
+		panel = new RMCanvasPane(forest);
 		BorderPane root = new BorderPane();
 		root.setCenter(panel);
 		VBox vbox = new VBox();
@@ -140,7 +141,7 @@ public class RMCreator2D extends Application {
 	private void outputMeshGraphJson(File out_file) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-		Levels levels = new Levels(root);
+		Levels levels = new Levels(null);
 
 		try {
 			FileWriter writer = new FileWriter(out_file);

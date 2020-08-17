@@ -2,6 +2,7 @@ package meshCreator.twoDimensions;
 
 import java.util.ArrayList;
 
+import meshCreator.Node;
 import meshCreator.Orthant;
 import meshCreator.Side;
 
@@ -18,13 +19,14 @@ public class Patch {
 
 	public ArrayList<Neighbor> nbrs = new ArrayList<Neighbor>();
 
-	public Patch(QuadTree node, int curr_level, int num_levels) {
-		this.id = node.id;
-		if (node.level < curr_level) {
-			parent_id = node.id;
+	public Patch(Node node, int curr_level, int num_levels) {
+		/*
+		this.id = node.getId();
+		if (node.getLevel() < curr_level) {
+			parent_id = node.getId();
 			orth_on_parent = -1;
 			if (curr_level < num_levels) {
-				child_ids = new int[] { node.id, -1, -1, -1 };
+				child_ids = new int[] { node.getId(), -1, -1, -1 };
 				child_ranks = new int[4];
 			}
 		} else {
@@ -32,7 +34,7 @@ public class Patch {
 				parent_id = -1;
 				orth_on_parent = -1;
 			} else {
-				parent_id = node.getParent().id;
+				parent_id = node.getParentId();
 				orth_on_parent = 0;
 				while (node != node.getParent().getChild(Orthant.getValuesForDimension(2)[orth_on_parent])) {
 					orth_on_parent++;
@@ -83,6 +85,7 @@ public class Patch {
 				nbrs.add(new Neighbor(side.toString(), "normal", ids, ranks, 0));
 			}
 		}
+		*/
 	}
 
 	public void updateNbrRankFor(int nbr_id, int new_rank) {

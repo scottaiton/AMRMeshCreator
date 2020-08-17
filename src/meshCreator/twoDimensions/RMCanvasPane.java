@@ -2,6 +2,7 @@ package meshCreator.twoDimensions;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -14,12 +15,14 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Translate;
+import meshCreator.Forest;
+import meshCreator.Node;
 import meshCreator.Orthant;
 import meshCreator.Side;
 
 public class RMCanvasPane extends Pane {
 
-	protected QuadTree root;
+	protected Forest forest;
 	private double cursor_x = 0;
 	private double cursor_y = 0;
 	private double scroll = 0;
@@ -29,8 +32,8 @@ public class RMCanvasPane extends Pane {
 	private Mode mode;
 	private Canvas canvas;
 
-	public RMCanvasPane(QuadTree root) {
-		this.root = root;
+	public RMCanvasPane(Forest forest) {
+		this.forest = forest;
 		/*
 		 * move_adapter=new MoveAdapter(this); addMouseListener(move_adapter);
 		 * addMouseMotionListener(move_adapter);
@@ -113,137 +116,63 @@ public class RMCanvasPane extends Pane {
 		g.clearRect(-x_trans, -y_trans, canvas.getWidth(), canvas.getHeight());
 		drawLeafs(g);
 		if (mode == Mode.add) {
-			Pair<QuadTree, Side> nbr = getNbrOf(getX(), getY());
-			if (nbr != null) {
-				drawPotentialNbr(g, nbr.getLeft(), 0, (int) size, (int) size, getX(), getY());
-			}
+			drawPotentialNbr(g, 0, (int) size, (int) size, getX(), getY());
 		}
 	}
 
 	private void drawLeafs(GraphicsContext g) {
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(root);
-		enqueued.add(root);
+		Queue<Integer> queue = new LinkedList<Integer>();
+		for (int id : forest.getRootIds()) {
+			queue.add(id);
+		}
 		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			drawLeafs(g, t, 0, (int) size, (int) size);
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
+			Node n = forest.getNode(queue.remove());
+			if (n.hasChildren()) {
+				for (Orthant o : Orthant.getValuesForDimension(2)) {
+					queue.add(n.getChildId(o));
 				}
+			} else {
+				int x_px = 0 + (int) (n.getStart(0) * size);
+				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
+				int x_ln = (int) Math.ceil(size * n.getLength(0));
+				int y_ln = (int) Math.ceil(size * n.getLength(1));
+				g.setFill(Color.WHITE);
+				g.setStroke(Color.RED);
+				g.fillRect(x_px, y_px, x_ln, y_ln);
+				g.strokeRect(x_px, y_px, x_ln, y_ln);
+			}
+			if (n.getLevel() == 0) {
+				int x_px = 0 + (int) (n.getStart(0) * size);
+				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
+				g.setStroke(Color.BLACK);
+				g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
+				g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 			}
 		}
 	}
 
-	public void drawLeafs(GraphicsContext g, QuadTree node, int x_orig, int y_orig, double size) {
-		if (node.hasChildren()) {
-			for (Orthant q : Orthant.getValuesForDimension(2)) {
-				drawLeafs(g, node.getChild(q), x_orig, y_orig, size);
-			}
-		} else {
-			int x_px = x_orig + (int) (node.starts[0] * size);
-			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
-			int x_ln = (int) Math.ceil(size * node.lengths[0]);
-			int y_ln = (int) Math.ceil(size * node.lengths[1]);
-			g.setFill(Color.WHITE);
-			g.setStroke(Color.RED);
-			g.fillRect(x_px, y_px, x_ln, y_ln);
-			g.strokeRect(x_px, y_px, x_ln, y_ln);
-		}
-		if (node.level == 1) {
-			int x_px = x_orig + (int) (node.starts[0] * size);
-			int y_px = y_orig - (int) ((node.starts[1] + node.lengths[1]) * size);
+	public void drawPotentialNbr(GraphicsContext g, int x_orig, int y_orig, int size, double x, double y) {
+		double[] coord = new double[2];
+		coord[0] = x;
+		coord[1] = y;
+		double[] starts = new double[2];
+		double[] lengths = new double[2];
+		if (forest.coordIsPotentialNbr(coord, starts, lengths)) {
+			int x_px = 0 + (int) (starts[0] * size);
+			int y_px = (int) size - (int) ((starts[1] + lengths[1]) * size);
+			g.setFill(Color.LIGHTGRAY);
 			g.setStroke(Color.BLACK);
+			g.fillRect(x_px, y_px, size, size);
 			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
 			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 		}
 	}
 
-	public Set<Pair<QuadTree, Side>> getNbrsOf(double x, double y) {
-		Set<Pair<QuadTree, Side>> nbrs = new HashSet<Pair<QuadTree, Side>>();
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(root);
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			if (t.isPotentialNbr(x, y)) {
-				nbrs.add(new Pair<QuadTree, Side>(t, t.getSide(x, y)));
-			}
-
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
-		return nbrs;
-	}
-
-	public Pair<QuadTree, Side> getNbrOf(double x, double y) {
-		Pair<QuadTree, Side> nbr = null;
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(root);
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			if (t.isPotentialNbr(x, y)) {
-				nbr = new Pair<QuadTree, Side>(t, t.getSide(x, y));
-				break;
-			}
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
-		return nbr;
-	}
-
-	public void drawPotentialNbr(GraphicsContext g, QuadTree root, int x_orig, int y_orig, int size, double x,
-			double y) {
-		int x_px = 0;
-		int y_px = 0;
-		if (root.isPotentialNbr(Side.WEST(), x, y)) {
-			x_px = x_orig + (int) (root.starts[0] - root.lengths[0]) * size;
-			y_px = y_orig - (int) (root.starts[1] + root.lengths[1]) * size;
-		} else if (root.isPotentialNbr(Side.EAST(), x, y)) {
-			x_px = x_orig + (int) (root.starts[0] + root.lengths[0]) * size;
-			y_px = y_orig - (int) (root.starts[1] + root.lengths[1]) * size;
-		} else if (root.isPotentialNbr(Side.SOUTH(), x, y)) {
-			x_px = x_orig + (int) (root.starts[0]) * size;
-			y_px = y_orig - (int) (root.starts[1]) * size;
-		} else if (root.isPotentialNbr(Side.NORTH(), x, y)) {
-			x_px = x_orig + (int) (root.starts[0]) * size;
-			y_px = y_orig - (int) (root.starts[1] + 2 * root.lengths[1]) * size;
-		}
-		g.setFill(Color.LIGHTGRAY);
-		g.setStroke(Color.BLACK);
-		g.fillRect(x_px, y_px, size, size);
-		g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
-		g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
-	}
-
 	public void addNbrAt(double x, double y) {
-		Set<Pair<QuadTree, Side>> pairs = getNbrsOf(x, y);
-		if (!pairs.isEmpty()) {
-			QuadTree t = new QuadTree();
-			Side first = null;
-			for (Pair<QuadTree, Side> p : pairs) {
-				QuadTree nbr = p.getLeft();
-				Side s = p.getRight();
-				if (first == null) {
-					first = s.getOpposite();
-				}
-				nbr.setNbr(s, t);
-				t.setNbr(s.getOpposite(), nbr);
-			}
-			t.setRelativeTo(first);
-			t.reconcile();
-		}
+		double[] coord = new double[2];
+		coord[0] = x;
+		coord[1] = y;
+		forest.addNbrAt(coord);
 		paint();
 	}
 
@@ -256,36 +185,18 @@ public class RMCanvasPane extends Pane {
 	}
 
 	public void refineAt(double x, double y) {
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(root);
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			t.refineAt(x, y);
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
+		double[] coord = new double[2];
+		coord[0] = x;
+		coord[1] = y;
+		forest.refineAt(coord);
 		paint();
 	}
 
 	public void coarsenAt(double x, double y) {
-		Set<QuadTree> enqueued = new HashSet<QuadTree>();
-		Queue<QuadTree> queue = new LinkedList<QuadTree>();
-		queue.add(root);
-		while (!queue.isEmpty()) {
-			QuadTree t = queue.remove();
-			t.coarsenAt(x, y);
-			for (Side s : Side.getValuesForDimension(2)) {
-				if (t.nbr(s) != null && !enqueued.contains(t.nbr(s))) {
-					queue.add(t.nbr(s));
-					enqueued.add(t.nbr(s));
-				}
-			}
-		}
+		double[] coord = new double[2];
+		coord[0] = x;
+		coord[1] = y;
+		forest.coarsenAt(coord);
 		paint();
 	}
 
