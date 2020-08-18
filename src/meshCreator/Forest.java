@@ -33,6 +33,7 @@ public class Forest {
 	 * @param dimension the number of Cartesian dimensions
 	 */
 	public Forest(int dimension) {
+		this.dimension=dimension;
 	}
 
 	/**
@@ -152,7 +153,7 @@ public class Forest {
 	 * Get the node, given the id
 	 * 
 	 * @param id the id of the node to get
-	 * @return the node
+	 * @return the node, null if the node does not exist
 	 */
 	public Node getNode(int id) {
 		// TODO Auto-generated method stub
