@@ -32,6 +32,46 @@ class OrthantTest {
 	}
 
 	@Test
+	void BSWConstructor() {
+		assertEquals(Orthant.BSW(), new Orthant(3, 0b000));
+	}
+
+	@Test
+	void BSEConstructor() {
+		assertEquals(Orthant.BSE(), new Orthant(3, 0b001));
+	}
+
+	@Test
+	void BNWConstructor() {
+		assertEquals(Orthant.BNW(), new Orthant(3, 0b010));
+	}
+
+	@Test
+	void BNEConstructor() {
+		assertEquals(Orthant.BNE(), new Orthant(3, 0b011));
+	}
+
+	@Test
+	void TSWConstructor() {
+		assertEquals(Orthant.TSW(), new Orthant(3, 0b100));
+	}
+
+	@Test
+	void TSEConstructor() {
+		assertEquals(Orthant.TSE(), new Orthant(3, 0b101));
+	}
+
+	@Test
+	void TNWConstructor() {
+		assertEquals(Orthant.TNW(), new Orthant(3, 0b110));
+	}
+
+	@Test
+	void TNEConstructor() {
+		assertEquals(Orthant.TNE(), new Orthant(3, 0b111));
+	}
+
+	@Test
 	void SWGetIndex() {
 		assertEquals(Orthant.SW().getIndex(), 0);
 	}
@@ -49,6 +89,46 @@ class OrthantTest {
 	@Test
 	void NEGetIndex() {
 		assertEquals(Orthant.NE().getIndex(), 3);
+	}
+
+	@Test
+	void BSWGetIndex() {
+		assertEquals(Orthant.BSW().getIndex(), 0);
+	}
+
+	@Test
+	void BSEGetIndex() {
+		assertEquals(Orthant.BSE().getIndex(), 1);
+	}
+
+	@Test
+	void BNWGetIndex() {
+		assertEquals(Orthant.BNW().getIndex(), 2);
+	}
+
+	@Test
+	void BNEGetIndex() {
+		assertEquals(Orthant.BNE().getIndex(), 3);
+	}
+
+	@Test
+	void TSWGetIndex() {
+		assertEquals(Orthant.TSW().getIndex(), 4);
+	}
+
+	@Test
+	void TSEGetIndex() {
+		assertEquals(Orthant.TSE().getIndex(), 5);
+	}
+
+	@Test
+	void TNWGetIndex() {
+		assertEquals(Orthant.TNW().getIndex(), 6);
+	}
+
+	@Test
+	void TNEGetIndex() {
+		assertEquals(Orthant.TNE().getIndex(), 7);
 	}
 
 	@Test
@@ -92,6 +172,126 @@ class OrthantTest {
 	}
 
 	@Test
+	void BSWIsLowerOnAxis0() {
+		assertTrue(Orthant.BSW().isLowerOnAxis(0));
+	}
+
+	@Test
+	void BSEIsLowerOnAxis0() {
+		assertFalse(Orthant.BSE().isLowerOnAxis(0));
+	}
+
+	@Test
+	void BNWIsLowerOnAxis0() {
+		assertTrue(Orthant.BNW().isLowerOnAxis(0));
+	}
+
+	@Test
+	void BNEIsLowerOnAxis0() {
+		assertFalse(Orthant.BNE().isLowerOnAxis(0));
+	}
+
+	@Test
+	void TSWIsLowerOnAxis0() {
+		assertTrue(Orthant.TSW().isLowerOnAxis(0));
+	}
+
+	@Test
+	void TSEIsLowerOnAxis0() {
+		assertFalse(Orthant.TSE().isLowerOnAxis(0));
+	}
+
+	@Test
+	void TNWIsLowerOnAxis0() {
+		assertTrue(Orthant.TNW().isLowerOnAxis(0));
+	}
+
+	@Test
+	void TNEIsLowerOnAxis0() {
+		assertFalse(Orthant.TNE().isLowerOnAxis(0));
+	}
+
+	@Test
+	void BSWIsLowerOnAxis1() {
+		assertTrue(Orthant.BSW().isLowerOnAxis(1));
+	}
+
+	@Test
+	void BSEIsLowerOnAxis1() {
+		assertTrue(Orthant.BSE().isLowerOnAxis(1));
+	}
+
+	@Test
+	void BNWIsLowerOnAxis1() {
+		assertFalse(Orthant.BNW().isLowerOnAxis(1));
+	}
+
+	@Test
+	void BNEIsLowerOnAxis1() {
+		assertFalse(Orthant.BNE().isLowerOnAxis(1));
+	}
+
+	@Test
+	void TSWIsLowerOnAxis1() {
+		assertTrue(Orthant.TSW().isLowerOnAxis(1));
+	}
+
+	@Test
+	void TSEIsLowerOnAxis1() {
+		assertTrue(Orthant.TSE().isLowerOnAxis(1));
+	}
+
+	@Test
+	void TNWIsLowerOnAxis1() {
+		assertFalse(Orthant.TNW().isLowerOnAxis(1));
+	}
+
+	@Test
+	void TNEIsLowerOnAxis1() {
+		assertFalse(Orthant.TNE().isLowerOnAxis(1));
+	}
+
+	@Test
+	void BSWIsLowerOnAxis2() {
+		assertTrue(Orthant.BSW().isLowerOnAxis(2));
+	}
+
+	@Test
+	void BSEIsLowerOnAxis2() {
+		assertTrue(Orthant.BSE().isLowerOnAxis(2));
+	}
+
+	@Test
+	void BNWIsLowerOnAxis2() {
+		assertTrue(Orthant.BNW().isLowerOnAxis(2));
+	}
+
+	@Test
+	void BNEIsLowerOnAxis2() {
+		assertTrue(Orthant.BNE().isLowerOnAxis(2));
+	}
+
+	@Test
+	void TSWIsLowerOnAxis2() {
+		assertFalse(Orthant.TSW().isLowerOnAxis(2));
+	}
+
+	@Test
+	void TSEIsLowerOnAxis2() {
+		assertFalse(Orthant.TSE().isLowerOnAxis(2));
+	}
+
+	@Test
+	void TNWIsLowerOnAxis2() {
+		assertFalse(Orthant.TNW().isLowerOnAxis(2));
+	}
+
+	@Test
+	void TNEIsLowerOnAxis2() {
+		assertFalse(Orthant.TNE().isLowerOnAxis(2));
+	}
+
+	@Test
 	void SWGetInteriorSides() {
 		Side[] sides = Orthant.SW().getInteriorSides();
 		assertEquals(sides.length, 2);
@@ -121,6 +321,78 @@ class OrthantTest {
 		assertEquals(sides.length, 2);
 		assertEquals(sides[0], Side.WEST());
 		assertEquals(sides[1], Side.SOUTH());
+	}
+
+	@Test
+	void BSWGetInteriorSides() {
+		Side[] sides = Orthant.BSW().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void BSEGetInteriorSides() {
+		Side[] sides = Orthant.BSE().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void BNWGetInteriorSides() {
+		Side[] sides = Orthant.BNW().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void BNEGetInteriorSides() {
+		Side[] sides = Orthant.BNE().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void TSWGetInteriorSides() {
+		Side[] sides = Orthant.TSW().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void TSEGetInteriorSides() {
+		Side[] sides = Orthant.TSE().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void TNWGetInteriorSides() {
+		Side[] sides = Orthant.TNW().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void TNEGetInteriorSides() {
+		Side[] sides = Orthant.TNE().getInteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.BOTTOM());
 	}
 
 	@Test
@@ -156,8 +428,85 @@ class OrthantTest {
 	}
 
 	@Test
+	void BSWGetExteriorSides() {
+		Side[] sides = Orthant.BSW().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void BSEGetExteriorSides() {
+		Side[] sides = Orthant.BSE().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void BNWGetExteriorSides() {
+		Side[] sides = Orthant.BNW().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void BNEGetExteriorSides() {
+		Side[] sides = Orthant.BNE().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.BOTTOM());
+	}
+
+	@Test
+	void TSWGetExteriorSides() {
+		Side[] sides = Orthant.TSW().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void TSEGetExteriorSides() {
+		Side[] sides = Orthant.TSE().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.SOUTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void TNWGetExteriorSides() {
+		Side[] sides = Orthant.TNW().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.WEST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
+	void TNEGetExteriorSides() {
+		Side[] sides = Orthant.TNE().getExteriorSides();
+		assertEquals(sides.length, 3);
+		assertEquals(sides[0], Side.EAST());
+		assertEquals(sides[1], Side.NORTH());
+		assertEquals(sides[2], Side.TOP());
+	}
+
+	@Test
 	void GetNumOrthantsForDimension2() {
 		assertEquals(Orthant.getNumOrthantsForDimension(2), 4);
+	}
+
+	@Test
+	void GetNumOrthantsForDimension3() {
+		assertEquals(Orthant.getNumOrthantsForDimension(3), 8);
 	}
 
 	@Test
@@ -168,6 +517,20 @@ class OrthantTest {
 		assertEquals(values[1], Orthant.SE());
 		assertEquals(values[2], Orthant.NW());
 		assertEquals(values[3], Orthant.NE());
+	}
+
+	@Test
+	void GetValuesForDimension3() {
+		Orthant[] values = Orthant.getValuesForDimension(3);
+		assertEquals(values.length, 8);
+		assertEquals(values[0], Orthant.BSW());
+		assertEquals(values[1], Orthant.BSE());
+		assertEquals(values[2], Orthant.BNW());
+		assertEquals(values[3], Orthant.BNE());
+		assertEquals(values[4], Orthant.TSW());
+		assertEquals(values[5], Orthant.TSE());
+		assertEquals(values[6], Orthant.TNW());
+		assertEquals(values[7], Orthant.TNE());
 	}
 
 	@Test
@@ -278,6 +641,11 @@ class OrthantTest {
 	}
 
 	@Test
+	void BNEGetNbrOnSideTop() {
+		assertEquals(Orthant.BNE().getNbrOnSide(Side.TOP()), Orthant.TNE());
+	}
+
+	@Test
 	void GetValuesOnSideWest2() {
 		Orthant[] orthants = Orthant.GetValuesOnSide(2, Side.WEST());
 		assertEquals(orthants.length, 2);
@@ -310,6 +678,16 @@ class OrthantTest {
 	}
 
 	@Test
+	void GetValuesOnSideWest3() {
+		Orthant[] orthants = Orthant.GetValuesOnSide(3, Side.WEST());
+		assertEquals(orthants.length, 4);
+		assertEquals(orthants[0], Orthant.BSW());
+		assertEquals(orthants[1], Orthant.BNW());
+		assertEquals(orthants[2], Orthant.TSW());
+		assertEquals(orthants[3], Orthant.TNW());
+	}
+
+	@Test
 	void SWToString() {
 		assertEquals(Orthant.SW().toString(), "[SOUTH, WEST]");
 	}
@@ -327,5 +705,10 @@ class OrthantTest {
 	@Test
 	void NEToString() {
 		assertEquals(Orthant.NE().toString(), "[NORTH, EAST]");
+	}
+
+	@Test
+	void BNEToString() {
+		assertEquals(Orthant.BNE().toString(), "[BOTTOM, NORTH, EAST]");
 	}
 }

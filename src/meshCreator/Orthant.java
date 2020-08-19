@@ -82,6 +82,78 @@ public class Orthant {
 	}
 
 	/**
+	 * Bottom-South-West octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant BSW() {
+		return new Orthant(3, 0b000);
+	}
+
+	/**
+	 * Bottom-South-East octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant BSE() {
+		return new Orthant(3, 0b001);
+	}
+
+	/**
+	 * Bottom-North-West octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant BNW() {
+		return new Orthant(3, 0b010);
+	}
+
+	/**
+	 * Bottom-North-East octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant BNE() {
+		return new Orthant(3, 0b011);
+	}
+
+	/**
+	 * Top-South-West octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant TSW() {
+		return new Orthant(3, 0b100);
+	}
+
+	/**
+	 * Top-South-East octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant TSE() {
+		return new Orthant(3, 0b101);
+	}
+
+	/**
+	 * Top-North-West octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant TNW() {
+		return new Orthant(3, 0b110);
+	}
+
+	/**
+	 * Top-North-East octant
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant TNE() {
+		return new Orthant(3, 0b111);
+	}
+
+	/**
 	 * Get the index of this orthant
 	 * 
 	 * @return the index
@@ -184,7 +256,7 @@ public class Orthant {
 			ret += exterior_sides[dimension - i].toString() + ", ";
 
 		}
-		ret += exterior_sides[0]+"]";
+		ret += exterior_sides[0] + "]";
 		return ret;
 	}
 
