@@ -67,7 +67,7 @@ public class Forest {
 
 		parent.setChildId(o, node.getId());
 
-		for (int axis = 0; axis < 2; axis++) {
+		for (int axis = 0; axis < dimension; axis++) {
 			node.setLength(axis, parent.getLength(axis) / 2);
 			if (o.isLowerOnAxis(axis)) {
 				node.setStart(axis, parent.getStart(axis));
@@ -436,6 +436,18 @@ public class Forest {
 			}
 		}
 		return new Orthant(dimension, orth_val);
+	}
+
+	/**
+	 * Refine the given node, if the node is not a leaf, nothing will happen
+	 * 
+	 * @param node_id the id of the node to refine
+	 */
+	public void refineNode(int node_id) {
+		Node node = getNode(node_id);
+		if (node != null && !node.hasChildren()) {
+			refineNode(node);
+		}
 	}
 
 }

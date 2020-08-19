@@ -116,6 +116,227 @@ class ForestTest {
 	}
 
 	@Test
+	void RefineNodeGood() {
+		Forest forest = new Forest(2);
+		forest.refineNode(0);
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getMaxLevel(), 1);
+
+		Node root = forest.getNode(0);
+		assertEquals(root.getId(), 0);
+		assertFalse(root.hasParent());
+		assertTrue(root.hasChildren());
+
+		// check the children
+		for (Orthant o : Orthant.getValuesForDimension(2)) {
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			assertFalse(child.hasChildren());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+		}
+	}
+
+	@Test
+	void RefineNodeNonLeaf() {
+		Forest forest = new Forest(2);
+		forest.refineNode(0);
+		forest.refineNode(0);
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getMaxLevel(), 1);
+
+		Node root = forest.getNode(0);
+		assertEquals(root.getId(), 0);
+		assertFalse(root.hasParent());
+		assertTrue(root.hasChildren());
+
+		// check the children
+		for (Orthant o : Orthant.getValuesForDimension(2)) {
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			assertFalse(child.hasChildren());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+		}
+	}
+
+	@Test
+	void RefineNodeTwice() {
+		Forest forest = new Forest(2);
+		Node root = forest.getRootNode();
+		forest.refineNode(root.getId());
+		forest.refineNode(root.getChildId(Orthant.SW()));
+
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getMaxLevel(), 2);
+
+		assertEquals(root.getId(), 0);
+		assertFalse(root.hasParent());
+		assertTrue(root.hasChildren());
+
+		// check the children
+		for (Orthant o : Orthant.getValuesForDimension(2)) {
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			if (o.equals(Orthant.SW())) {
+				assertTrue(child.hasChildren());
+				for (Orthant child_o : Orthant.getValuesForDimension(2)) {
+					int child_child_id = child.getChildId(child_o);
+					Node child_child = forest.getNode(child_child_id);
+					assertEquals(child_child.getId(), child_child_id);
+					assertTrue(child_child.hasParent());
+					for (Side s : child_o.getInteriorSides()) {
+						assertTrue(child_child.hasNbr(s));
+						assertEquals(child_child.getNbrId(s), child.getChildId(child_o.getNbrOnSide(s)));
+					}
+					for (Side s : child_o.getExteriorSides()) {
+						assertFalse(child_child.hasNbr(s));
+					}
+				}
+			} else {
+				assertFalse(child.hasChildren());
+			}
+		}
+	}
+
+	@Test
+	void RefineNodeThrice() {
+		Forest forest = new Forest(2);
+		Node root = forest.getRootNode();
+		forest.refineNode(root.getId());
+		Node child = forest.getNode(root.getChildId(Orthant.SW()));
+		forest.refineNode(child.getId());
+		forest.refineNode(child.getChildId(Orthant.NE()));
+
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getMaxLevel(), 3);
+
+		assertEquals(root.getId(), 0);
+		assertFalse(root.hasParent());
+		assertTrue(root.hasChildren());
+
+		// check the children
+		// southwest root
+		{
+			Orthant o = Orthant.SW();
+			int child_id = root.getChildId(o);
+			child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertTrue(child.hasChildren());
+			for (Orthant child_o : Orthant.getValuesForDimension(2)) {
+				int child_child_id = child.getChildId(child_o);
+				Node child_child = forest.getNode(child_child_id);
+				assertEquals(child_child.getId(), child_child_id);
+				assertTrue(child_child.hasParent());
+				for (Side s : Side.getValuesForDimension(2)) {
+					if (intersection(o.getExteriorSides(), child_o.getExteriorSides()).contains(s)) {
+						assertFalse(child_child.hasNbr(s));
+					} else if (set(child_o.getExteriorSides()).contains(s)) {
+						assertTrue(child_child.hasNbr(s));
+						assertEquals(child_child.getNbrId(s),
+								forest.getNode(root.getChildId(o.getNbrOnSide(s))).getChildId(child_o.getNbrOnSide(s)));
+					} else {
+						assertTrue(child_child.hasNbr(s));
+						assertEquals(child_child.getNbrId(s), child.getChildId(child_o.getNbrOnSide(s)));
+					}
+				}
+				if (child_o.equals(Orthant.NE())) {
+					assertTrue(child_child.hasChildren());
+				} else {
+					assertFalse(child_child.hasChildren());
+				}
+			}
+		}
+		// southeast root
+		{
+			Orthant o = Orthant.SE();
+			int child_id = root.getChildId(o);
+			child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertTrue(child.hasChildren());
+		}
+		// northwest root
+		{
+			Orthant o = Orthant.NW();
+			int child_id = root.getChildId(o);
+			child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertTrue(child.hasChildren());
+		}
+		// northeast root
+		{
+			Orthant o = Orthant.NE();
+			int child_id = root.getChildId(o);
+			child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertFalse(child.hasChildren());
+		}
+	}
+
+	@Test
 	void RefineAtThrice() {
 		Forest forest = new Forest(2);
 		double[] coord = { .3, .3 };
@@ -441,6 +662,17 @@ class ForestTest {
 		Forest forest = new Forest(2);
 		double[] coord = { .5, 2 };
 		forest.refineAt(coord);
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getNode(0).getId(), 0);
+		assertFalse(forest.getNode(0).hasChildren());
+	}
+
+	@Test
+	void RefineNodeBad() {
+		Forest forest = new Forest(2);
+		forest.refineNode(1000);
 		assertEquals(forest.getRootNode().getId(), 0);
 		assertEquals(forest.getRootIds().size(), 1);
 		assertTrue(forest.getRootIds().contains(0));

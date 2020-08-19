@@ -20,6 +20,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -33,21 +34,21 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import meshCreator.Forest;
+import meshCreator.Side;
 import meshCreator.twoDimensions.RMCreator2D;
 
 public class RMCreator3D extends Application {
 
 	private RMScenePane panel;
-	private ToggleGroup mode_group;
-	private Mode mode;
-	private OctTree root;
+	private Forest forest;
 	Stage primary_stage;
 
 	public void start(Stage primaryStage) {
 		primary_stage = primaryStage;
-		root = new OctTree();
+		forest = new Forest(3);
 		setupToolBar();
-		panel = new RMScenePane(root);
+		panel = new RMScenePane(forest);
 		BorderPane root = new BorderPane();
 		VBox vbox = new VBox();
 		vbox.getChildren().addAll(setupMenu(), setupToolBar());
@@ -67,42 +68,23 @@ public class RMCreator3D extends Application {
 			public void handle(KeyEvent e) {
 				switch (e.getCharacter()) {
 				case "a":
-					panel.moveSelected(Side.WEST);
+					panel.moveSelected(Side.WEST());
 					break;
 				case "q":
-					panel.moveSelected(Side.EAST);
+					panel.moveSelected(Side.EAST());
 					break;
 				case "s":
-					panel.moveSelected(Side.SOUTH);
+					panel.moveSelected(Side.SOUTH());
 					break;
 				case "w":
-					panel.moveSelected(Side.NORTH);
+					panel.moveSelected(Side.NORTH());
 					break;
 				case "d":
-					panel.moveSelected(Side.BOTTOM);
+					panel.moveSelected(Side.BOTTOM());
 					break;
 				case "e":
-					panel.moveSelected(Side.TOP);
+					panel.moveSelected(Side.TOP());
 					break;
-				}
-			}
-		});
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
-				if (e.getCode().equals(KeyCode.ENTER)) {
-					if (mode != null) {
-						switch (mode) {
-						case coarsen:
-							panel.coarsenSelcted();
-							break;
-						case refine:
-							panel.refineSelcted();
-							break;
-						default:
-							break;
-
-						}
-					}
 				}
 			}
 		});
@@ -148,24 +130,20 @@ public class RMCreator3D extends Application {
 	}
 
 	private ToolBar setupToolBar() {
-		ToggleButton refine_button = new ToggleButton("Refine");
-		refine_button.setUserData(Mode.refine);
-
-		ToggleButton coarsen_button = new ToggleButton("Coarsen");
-		coarsen_button.setUserData(Mode.coarsen);
-
-		mode_group = new ToggleGroup();
-		refine_button.setToggleGroup(mode_group);
-		coarsen_button.setToggleGroup(mode_group);
-
-		mode_group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
-				if (new_toggle == null)
-					mode = null;
-				else
-					mode = (Mode) mode_group.getSelectedToggle().getUserData();
+		Button refine_button = new Button("Refine");
+		refine_button.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+				panel.refineSelected();
 			}
 		});
+
+		Button coarsen_button = new Button("Coarsen");
+		coarsen_button.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+				panel.coarsenSelcted();
+			}
+		});
+
 		ToggleButton x_rot = new ToggleButton("X");
 		x_rot.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
@@ -200,127 +178,8 @@ public class RMCreator3D extends Application {
 	}
 
 	private void outputMeshGraph(File out_file) {
-		int num_nodes = OctTree.indexNodes(root);
-		try {
-			FileOutputStream fos = new FileOutputStream(out_file);
-
-			ByteBuffer h_buf = ByteBuffer.allocate(8);
-			h_buf.order(ByteOrder.LITTLE_ENDIAN);
-			h_buf.putInt(num_nodes);
-
-			Queue<OctTree> q = new LinkedList<OctTree>();
-			Set<OctTree> visited = new HashSet<OctTree>();
-			{
-				Queue<OctTree> q2 = new LinkedList<OctTree>();
-				Set<OctTree> visited2 = new HashSet<OctTree>();
-				q2.add(root);
-				while (!q2.isEmpty()) {
-					OctTree curr = q2.remove();
-					visited2.add(curr);
-					q.add(curr);
-					for (Side s : Side.values()) {
-						OctTree nbr = curr.nbr(s);
-						if (nbr != null && !q2.contains(nbr) && !visited2.contains(nbr)) {
-							q2.add(nbr);
-						}
-					}
-				}
-			}
-			h_buf.putInt(q.size());
-			fos.write(h_buf.array());
-			while (!q.isEmpty()) {
-				ByteBuffer n_buf = ByteBuffer.allocate(116);
-				n_buf.order(ByteOrder.LITTLE_ENDIAN);
-				OctTree curr = q.remove();
-				visited.add(curr);
-				n_buf.putInt(curr.id);
-				n_buf.putInt(curr.level);
-				if (curr.parent == null) {
-					n_buf.putInt(-1);
-				} else {
-					n_buf.putInt(curr.parent.id);
-				}
-				n_buf.putDouble(curr.x_length);
-				n_buf.putDouble(curr.y_length);
-				n_buf.putDouble(curr.z_length);
-				n_buf.putDouble(curr.x_start);
-				n_buf.putDouble(curr.y_start);
-				n_buf.putDouble(curr.z_start);
-				// nbrs
-				for (Side s : Side.values()) {
-					if (curr.nbr(s) == null) {
-						n_buf.putInt(-1);
-					} else {
-						n_buf.putInt(curr.nbr(s).id);
-					}
-				}
-				if (curr.hasChildren()) {
-					for (Oct o : Oct.values()) {
-						OctTree nbr = curr.child(o);
-						if (!q.contains(nbr) && !visited.contains(nbr)) {
-							q.add(nbr);
-						}
-						n_buf.putInt(nbr.id);
-					}
-				} else {
-					for (int i = 0; i < 8; i++) {
-						n_buf.putInt(-1);
-					}
-				}
-				fos.write(n_buf.array());
-			}
-			fos.close();
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 	}
 
 	private void readMeshGraph(File out_file) {
-		try {
-			FileInputStream fos = new FileInputStream(out_file);
-
-			ByteBuffer h_buf = ByteBuffer.allocate(8);
-			h_buf.order(ByteOrder.LITTLE_ENDIAN);
-			fos.read(h_buf.array());
-			int num_nodes = h_buf.getInt();
-			h_buf.getInt();
-
-			OctTree.cubes.getChildren().clear();
-			Map<Integer, OctTree> map = new HashMap<Integer, OctTree>();
-			for (int i = 0; i < num_nodes; i++) {
-				ByteBuffer n_buf = ByteBuffer.allocate(116);
-				n_buf.order(ByteOrder.LITTLE_ENDIAN);
-				fos.read(n_buf.array());
-				OctTree node;
-				int id = n_buf.getInt();
-				if (map.containsKey(id)) {
-					node = map.get(id);
-				} else {
-					node = new OctTree(id);
-					map.put(id, node);
-				}
-				node.finish_setup(n_buf, map);
-				if (i == 0) {
-					root = node;
-					panel.setRoot(root);
-				}
-			}
-			OctTree child = root;
-			while (child.hasChildren()) {
-				child = child.children[0];
-			}
-			child.toggleSelected();
-			fos.close();
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 	}
 }
