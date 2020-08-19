@@ -117,6 +117,11 @@ public class Side {
 		return s.dimension == dimension && s.val == val;
 	}
 
+	@Override
+	public int hashCode() {
+		return (dimension << 16) | val;
+	}
+
 	/**
 	 * Get the axis that this side lies on
 	 * 

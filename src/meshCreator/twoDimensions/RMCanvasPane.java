@@ -120,34 +120,32 @@ public class RMCanvasPane extends Pane {
 		}
 	}
 
-	private void drawLeafs(GraphicsContext g) {
-		Queue<Integer> queue = new LinkedList<Integer>();
-		for (int id : forest.getRootIds()) {
-			queue.add(id);
+	private void drawLeavesForNode(GraphicsContext g, Node node) {
+		if (node.hasChildren()) {
+			for (Orthant o : Orthant.getValuesForDimension(2)) {
+				drawLeavesForNode(g, forest.getNode(node.getChildId(o)));
+			}
+		} else {
+			int x_px = 0 + (int) (node.getStart(0) * size);
+			int y_px = (int) size - (int) ((node.getStart(1) + node.getLength(1)) * size);
+			int x_ln = (int) Math.ceil(size * node.getLength(0));
+			int y_ln = (int) Math.ceil(size * node.getLength(1));
+			g.setFill(Color.WHITE);
+			g.setStroke(Color.RED);
+			g.fillRect(x_px, y_px, x_ln, y_ln);
+			g.strokeRect(x_px, y_px, x_ln, y_ln);
 		}
-		while (!queue.isEmpty()) {
-			Node n = forest.getNode(queue.remove());
-			if (n.hasChildren()) {
-				for (Orthant o : Orthant.getValuesForDimension(2)) {
-					queue.add(n.getChildId(o));
-				}
-			} else {
-				int x_px = 0 + (int) (n.getStart(0) * size);
-				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
-				int x_ln = (int) Math.ceil(size * n.getLength(0));
-				int y_ln = (int) Math.ceil(size * n.getLength(1));
-				g.setFill(Color.WHITE);
-				g.setStroke(Color.RED);
-				g.fillRect(x_px, y_px, x_ln, y_ln);
-				g.strokeRect(x_px, y_px, x_ln, y_ln);
-			}
-			if (n.getLevel() == 0) {
-				int x_px = 0 + (int) (n.getStart(0) * size);
-				int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
-				g.setStroke(Color.BLACK);
-				g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
-				g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
-			}
+	}
+
+	private void drawLeafs(GraphicsContext g) {
+		for (int id : forest.getRootIds()) {
+			Node n = forest.getNode(id);
+			drawLeavesForNode(g, n);
+			int x_px = 0 + (int) (n.getStart(0) * size);
+			int y_px = (int) size - (int) ((n.getStart(1) + n.getLength(1)) * size);
+			g.setStroke(Color.BLACK);
+			g.strokeRect(x_px, y_px, (int) size - 1, (int) size - 1);
+			g.strokeRect(x_px - 1, y_px - 1, (int) size + 1, (int) size + 1);
 		}
 	}
 

@@ -2,15 +2,15 @@ package meshCreator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
 class ForestTest {
 
 	private Set<Side> set(Side[] sides) {
-		Set<Side> ret = new TreeSet<Side>();
+		Set<Side> ret = new HashSet<Side>();
 		for (Side s : sides) {
 			ret.add(s);
 		}
@@ -97,13 +97,13 @@ class ForestTest {
 			if (o.equals(Orthant.SW())) {
 				assertTrue(child.hasChildren());
 				for (Orthant child_o : Orthant.getValuesForDimension(2)) {
-					int child_child_id = root.getChildId(o);
+					int child_child_id = child.getChildId(child_o);
 					Node child_child = forest.getNode(child_child_id);
 					assertEquals(child_child.getId(), child_child_id);
 					assertTrue(child_child.hasParent());
 					for (Side s : child_o.getInteriorSides()) {
 						assertTrue(child_child.hasNbr(s));
-						assertEquals(child_child.getNbrId(s), child.getChildId(o.getNbrOnSide(s)));
+						assertEquals(child_child.getNbrId(s), child.getChildId(child_o.getNbrOnSide(s)));
 					}
 					for (Side s : child_o.getExteriorSides()) {
 						assertFalse(child_child.hasNbr(s));
@@ -133,7 +133,9 @@ class ForestTest {
 		assertTrue(root.hasChildren());
 
 		// check the children
-		for (Orthant o : Orthant.getValuesForDimension(2)) {
+		// southwest root
+		{
+			Orthant o = Orthant.SW();
 			int child_id = root.getChildId(o);
 			Node child = forest.getNode(child_id);
 			assertEquals(child.getId(), child_id);
@@ -160,15 +162,63 @@ class ForestTest {
 								forest.getNode(root.getChildId(o.getNbrOnSide(s))).getChildId(child_o.getNbrOnSide(s)));
 					} else {
 						assertTrue(child_child.hasNbr(s));
-						assertEquals(child_child.getNbrId(s), child.getChildId(o.getNbrOnSide(s)));
+						assertEquals(child_child.getNbrId(s), child.getChildId(child_o.getNbrOnSide(s)));
 					}
 				}
-				if (o.equals(Orthant.SW()) && child_o.equals(Orthant.NE())) {
+				if (child_o.equals(Orthant.NE())) {
 					assertTrue(child_child.hasChildren());
 				} else {
 					assertFalse(child_child.hasChildren());
 				}
 			}
+		}
+		// southeast root
+		{
+			Orthant o = Orthant.SE();
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertTrue(child.hasChildren());
+		}
+		// northwest root
+		{
+			Orthant o = Orthant.NW();
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertTrue(child.hasChildren());
+		}
+		// northeast root
+		{
+			Orthant o = Orthant.NE();
+			int child_id = root.getChildId(o);
+			Node child = forest.getNode(child_id);
+			assertEquals(child.getId(), child_id);
+			assertTrue(child.hasParent());
+			for (Side s : o.getInteriorSides()) {
+				assertTrue(child.hasNbr(s));
+				assertEquals(child.getNbrId(s), root.getChildId(o.getNbrOnSide(s)));
+			}
+			for (Side s : o.getExteriorSides()) {
+				assertFalse(child.hasNbr(s));
+			}
+			assertFalse(child.hasChildren());
 		}
 	}
 
@@ -236,7 +286,27 @@ class ForestTest {
 	}
 
 	@Test
-	void CoarsenAtAfterRefineAtTwiceCoarser() {
+	void CoarsenAtAfterRefineAtThriceCoarsesr() {
+		Forest forest = new Forest(2);
+		double[] coord = { .3, .3 };
+		forest.refineAt(coord);
+		forest.refineAt(coord);
+		forest.refineAt(coord);
+		coord[0] = .25;
+		coord[1] = .75;
+		forest.coarsenAt(coord);
+
+		assertEquals(forest.getRootNode().getId(), 0);
+		assertEquals(forest.getRootIds().size(), 1);
+		assertTrue(forest.getRootIds().contains(0));
+		assertEquals(forest.getNode(0).getId(), 0);
+		assertFalse(forest.getNode(0).hasParent());
+		assertTrue(forest.getNode(0).hasChildren());
+		assertEquals(forest.getMaxLevel(), 2);
+	}
+
+	@Test
+	void CoarsenAtAfterRefineAtTwiceCoarsest() {
 		Forest forest = new Forest(2);
 		double[] coord = { .3, .3 };
 		forest.refineAt(coord);
@@ -258,9 +328,7 @@ class ForestTest {
 	@Test
 	void CoarsenNodeRoot() {
 		Forest forest = new Forest(2);
-		assertThrows(Exception.class, () -> {
-			forest.coarsenNode(0);
-		});
+		forest.coarsenNode(0);
 		assertEquals(forest.getRootNode().getId(), 0);
 		assertEquals(forest.getRootIds().size(), 1);
 		assertTrue(forest.getRootIds().contains(0));
@@ -271,9 +339,7 @@ class ForestTest {
 	@Test
 	void CoarsenNodeBad() {
 		Forest forest = new Forest(2);
-		assertThrows(Exception.class, () -> {
-			forest.coarsenNode(69);
-		});
+		forest.coarsenNode(69);
 		assertEquals(forest.getRootNode().getId(), 0);
 		assertEquals(forest.getRootIds().size(), 1);
 		assertTrue(forest.getRootIds().contains(0));
@@ -349,6 +415,7 @@ class ForestTest {
 		assertFalse(forest.getNode(0).hasChildren());
 		assertEquals(forest.getMaxLevel(), 0);
 		assertEquals(forest.getNode(1), null);
+		assertEquals(forest.getNode(7), null);
 	}
 
 	@Test
@@ -540,7 +607,7 @@ class ForestTest {
 		assertEquals(forest.getNode(2).getNbrId(Side.SOUTH()), 0);
 		assertEquals(forest.getNode(2).getNbrId(Side.WEST()), 3);
 
-		assertEquals(forest.getNode(3).getId(), 2);
+		assertEquals(forest.getNode(3).getId(), 3);
 		assertFalse(forest.getNode(3).hasChildren());
 		assertFalse(forest.getNode(3).hasParent());
 		assertEquals(forest.getNode(3).getNbrId(Side.SOUTH()), 1);
@@ -548,15 +615,19 @@ class ForestTest {
 	}
 
 	@Test
-	void AddNbrAtAfterRefineAtTwiceRoot() {
+	void AddNbrAtNorthThenNorthWestThenWestAfterRefineAtTwiceRoot() {
 		Forest forest = new Forest(2);
 		double[] coord = { .2, .2 };
 		forest.refineAt(coord);
 		forest.refineAt(coord);
+		double[] north = { .2, 1.5 };
+		forest.addNbrAt(north);
+		double[] northwest = { -.2, 1.5 };
+		forest.addNbrAt(northwest);
 		double[] west = { -.2, .5 };
 		forest.addNbrAt(west);
 		assertEquals(forest.getRootNode().getId(), 0);
-		assertEquals(forest.getRootIds().size(), 2);
+		assertEquals(forest.getRootIds().size(), 4);
 		assertTrue(forest.getRootIds().contains(0));
 		assertEquals(forest.getMaxLevel(), 2);
 
@@ -640,5 +711,18 @@ class ForestTest {
 		assertEquals(forest.getLeafAt(coord2).getLevel(), 0);
 		assertEquals(forest.getLeafAt(coord2).getId(), 1);
 		assertTrue(forest.getLeafAt(coord2).coordIsInside(coord2));
+	}
+
+	@Test
+	void IsPotentialNbrAfterAddNbrAdd() {
+		Forest forest = new Forest(2);
+
+		double[] coord2 = { 1.75, .75 };
+		forest.addNbrAt(coord2);
+
+		double[] coord = { 2.75, .75 };
+		double[] starts = { 2.75, .75 };
+		double[] lengths = { 2.75, .75 };
+		assertTrue(forest.coordIsPotentialNbr(coord, starts, lengths));
 	}
 }
