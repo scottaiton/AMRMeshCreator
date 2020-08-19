@@ -12,22 +12,22 @@ class SideTest {
 
 	@Test
 	void WestConstructor() {
-		assertEquals(Side.WEST(), new Side(2, 0b00));
+		assertEquals(Side.WEST(), new Side(0b00));
 	}
 
 	@Test
 	void EastConstructor() {
-		assertEquals(Side.EAST(), new Side(2, 0b01));
+		assertEquals(Side.EAST(), new Side(0b01));
 	}
 
 	@Test
 	void SouthConstructor() {
-		assertEquals(Side.SOUTH(), new Side(2, 0b10));
+		assertEquals(Side.SOUTH(), new Side(0b10));
 	}
 
 	@Test
 	void NorthConstructor() {
-		assertEquals(Side.NORTH(), new Side(2, 0b11));
+		assertEquals(Side.NORTH(), new Side(0b11));
 	}
 
 	@Test
@@ -139,16 +139,9 @@ class SideTest {
 	}
 
 	@Test
-	void EqualsDifferentSideSameDimension() {
+	void EqualsDifferentSideSame() {
 		Side s1 = Side.WEST();
 		Side s2 = Side.EAST();
-		assertNotEquals(s1, s2);
-	}
-
-	@Test
-	void EqualsDifferentSideDifferentDimension() {
-		Side s1 = Side.WEST();
-		Side s2 = new Side(3, 0);
 		assertNotEquals(s1, s2);
 	}
 
@@ -173,12 +166,12 @@ class SideTest {
 	}
 
 	@Test
-	void ToString2_4() {
-		assertEquals((new Side(2, 4)).toString(), "Dimension: 2 Value: 4");
+	void ToString6() {
+		assertEquals((new Side(6)).toString(), "Value: 6");
 	}
 
 	@Test
-	void ToString3_4() {
-		assertEquals((new Side(3, 4)).toString(), "Dimension: 3 Value: 4");
+	void ToString7() {
+		assertEquals((new Side(7)).toString(), "Value: 7");
 	}
 }

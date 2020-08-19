@@ -4,10 +4,6 @@ import java.util.ArrayList;
 
 public class Side {
 	/**
-	 * The number of Cartesian dimensions
-	 */
-	private int dimension;
-	/**
 	 * The value of this side
 	 */
 	private int val;
@@ -18,8 +14,7 @@ public class Side {
 	 * @param dimension the number of Cartesian dimensions
 	 * @param val       the value
 	 */
-	public Side(int dimension, int val) {
-		this.dimension = dimension;
+	public Side(int val) {
 		this.val = val;
 	}
 
@@ -42,7 +37,7 @@ public class Side {
 	public static Side[] getValuesForDimension(int dimension) {
 		Side[] ret = new Side[getNumSidesForDimension(dimension)];
 		for (int i = 0; i < getNumSidesForDimension(dimension); i++) {
-			ret[i] = new Side(dimension, i);
+			ret[i] = new Side(i);
 		}
 		return ret;
 	}
@@ -53,7 +48,7 @@ public class Side {
 	 * @return a new side object
 	 */
 	public static Side WEST() {
-		return new Side(2, 0b00);
+		return new Side(0b00);
 	}
 
 	/**
@@ -62,7 +57,7 @@ public class Side {
 	 * @return a new side object
 	 */
 	public static Side EAST() {
-		return new Side(2, 0b01);
+		return new Side(0b01);
 	}
 
 	/**
@@ -71,7 +66,7 @@ public class Side {
 	 * @return a new side object
 	 */
 	public static Side SOUTH() {
-		return new Side(2, 0b10);
+		return new Side(0b10);
 	}
 
 	/**
@@ -80,7 +75,7 @@ public class Side {
 	 * @return a new side object
 	 */
 	public static Side NORTH() {
-		return new Side(2, 0b11);
+		return new Side(0b11);
 	}
 
 	/**
@@ -99,7 +94,7 @@ public class Side {
 	 */
 	public Side getOpposite() {
 		int new_val = val ^ 0x1; // flip the last bit
-		return new Side(dimension, new_val);
+		return new Side(new_val);
 	}
 
 	@Override
@@ -114,12 +109,12 @@ public class Side {
 
 		Side s = (Side) o;
 
-		return s.dimension == dimension && s.val == val;
+		return s.val == val;
 	}
 
 	@Override
 	public int hashCode() {
-		return (dimension << 16) | val;
+		return val;
 	}
 
 	/**
@@ -143,19 +138,16 @@ public class Side {
 	@Override
 	public String toString() {
 		String str = new String();
-		if (dimension == 2) {
-			if (this.equals(Side.WEST())) {
-				str = "WEST";
-			} else if (this.equals(Side.EAST())) {
-				str = "EAST";
-			} else if (this.equals(Side.SOUTH())) {
-				str = "SOUTH";
-			} else if (this.equals(Side.NORTH())) {
-				str = "NORTH";
-			}
-		}
-		if (str.isEmpty()) {
-			str = "Dimension: " + dimension + " Value: " + val;
+		if (this.equals(Side.WEST())) {
+			str = "WEST";
+		} else if (this.equals(Side.EAST())) {
+			str = "EAST";
+		} else if (this.equals(Side.SOUTH())) {
+			str = "SOUTH";
+		} else if (this.equals(Side.NORTH())) {
+			str = "NORTH";
+		} else {
+			str = "Value: " + val;
 		}
 		return str;
 	}

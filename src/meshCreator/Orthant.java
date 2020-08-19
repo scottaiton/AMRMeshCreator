@@ -124,7 +124,7 @@ public class Orthant {
 		Side[] ret = new Side[dimension];
 		for (int i = 0; i < dimension; i++) {
 			int side_val = ((i << 1) | ((val >> i) & 0b1));
-			ret[i] = new Side(dimension, side_val);
+			ret[i] = new Side(side_val);
 		}
 		return ret;
 	}
@@ -138,7 +138,7 @@ public class Orthant {
 		Side[] ret = new Side[dimension];
 		for (int i = 0; i < dimension; i++) {
 			int side_val = ((i << 1) | ((val >> i) & 0b1)) ^ 0b1;
-			ret[i] = new Side(dimension, side_val);
+			ret[i] = new Side(side_val);
 		}
 		return ret;
 	}
