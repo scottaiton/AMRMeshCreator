@@ -31,6 +31,16 @@ class SideTest {
 	}
 
 	@Test
+	void BottomConstructor() {
+		assertEquals(Side.BOTTOM(), new Side(0b100));
+	}
+
+	@Test
+	void TopConstructor() {
+		assertEquals(Side.TOP(), new Side(0b101));
+	}
+
+	@Test
 	void WestGetOpposite() {
 		assertEquals(Side.WEST().getOpposite(), Side.EAST());
 	}
@@ -48,6 +58,16 @@ class SideTest {
 	@Test
 	void NorthGetOpposite() {
 		assertEquals(Side.NORTH().getOpposite(), Side.SOUTH());
+	}
+
+	@Test
+	void BottomGetOpposite() {
+		assertEquals(Side.BOTTOM().getOpposite(), Side.TOP());
+	}
+
+	@Test
+	void TopGetOpposite() {
+		assertEquals(Side.TOP().getOpposite(), Side.BOTTOM());
 	}
 
 	@Test
@@ -71,6 +91,16 @@ class SideTest {
 	}
 
 	@Test
+	void BottomGetIndex() {
+		assertEquals(Side.BOTTOM().getIndex(), 4);
+	}
+
+	@Test
+	void TopGetIndex() {
+		assertEquals(Side.TOP().getIndex(), 5);
+	}
+
+	@Test
 	void WestGetAxis() {
 		assertEquals(Side.WEST().getAxis(), 0);
 	}
@@ -88,6 +118,16 @@ class SideTest {
 	@Test
 	void NorthGetAxis() {
 		assertEquals(Side.NORTH().getAxis(), 1);
+	}
+
+	@Test
+	void BottomGetAxis() {
+		assertEquals(Side.BOTTOM().getAxis(), 2);
+	}
+
+	@Test
+	void TopGetAxis() {
+		assertEquals(Side.TOP().getAxis(), 2);
 	}
 
 	@Test
@@ -111,8 +151,23 @@ class SideTest {
 	}
 
 	@Test
+	void BottomIsLowerOnAxis() {
+		assertTrue(Side.BOTTOM().isLowerOnAxis());
+	}
+
+	@Test
+	void TopIsLowerOnAxis() {
+		assertFalse(Side.TOP().isLowerOnAxis());
+	}
+
+	@Test
 	void GetNumSidesForDimension2() {
 		assertEquals(Side.getNumSidesForDimension(2), 4);
+	}
+
+	@Test
+	void GetNumSidesForDimension3() {
+		assertEquals(Side.getNumSidesForDimension(3), 6);
 	}
 
 	@Test
@@ -123,6 +178,18 @@ class SideTest {
 		assertEquals(values[1], Side.EAST());
 		assertEquals(values[2], Side.SOUTH());
 		assertEquals(values[3], Side.NORTH());
+	}
+
+	@Test
+	void GetValuesForDimension3() {
+		Side[] values = Side.getValuesForDimension(3);
+		assertEquals(values.length, 6);
+		assertEquals(values[0], Side.WEST());
+		assertEquals(values[1], Side.EAST());
+		assertEquals(values[2], Side.SOUTH());
+		assertEquals(values[3], Side.NORTH());
+		assertEquals(values[4], Side.BOTTOM());
+		assertEquals(values[5], Side.TOP());
 	}
 
 	@Test
@@ -163,6 +230,16 @@ class SideTest {
 	@Test
 	void NorthToString() {
 		assertEquals(Side.NORTH().toString(), "NORTH");
+	}
+
+	@Test
+	void BottomToString() {
+		assertEquals(Side.BOTTOM().toString(), "BOTTOM");
+	}
+
+	@Test
+	void TopToString() {
+		assertEquals(Side.TOP().toString(), "TOP");
 	}
 
 	@Test

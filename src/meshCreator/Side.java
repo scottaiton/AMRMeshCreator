@@ -79,6 +79,24 @@ public class Side {
 	}
 
 	/**
+	 * Bottom side
+	 * 
+	 * @return a new side object
+	 */
+	public static Side BOTTOM() {
+		return new Side(0b100);
+	}
+
+	/**
+	 * Top side
+	 * 
+	 * @return a new side object
+	 */
+	public static Side TOP() {
+		return new Side(0b101);
+	}
+
+	/**
 	 * Get the index of this side
 	 * 
 	 * @return the index of this side
@@ -146,6 +164,10 @@ public class Side {
 			str = "SOUTH";
 		} else if (this.equals(Side.NORTH())) {
 			str = "NORTH";
+		} else if (this.equals(Side.BOTTOM())) {
+			str = "BOTTOM";
+		} else if (this.equals(Side.TOP())) {
+			str = "TOP";
 		} else {
 			str = "Value: " + val;
 		}
