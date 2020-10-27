@@ -3,6 +3,7 @@ package meshCreator.twoDimensions;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -38,6 +39,8 @@ import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import meshCreator.Forest;
+import meshCreator.GsonAdapters;
+import meshCreator.Levels;
 import meshCreator.threeDimensions.RMCreator3D;
 
 public class RMCreator2D extends Application {
@@ -118,7 +121,13 @@ public class RMCreator2D extends Application {
 				save();
 			}
 		});
-		file_menu.getItems().addAll(new_menu, save_item);
+		MenuItem open_item = new MenuItem("Open");
+		open_item.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+				open();
+			}
+		});
+		file_menu.getItems().addAll(new_menu, save_item, open_item);
 		menuBar.getMenus().add(file_menu);
 		vbox.getChildren().addAll(menuBar, toolbar);
 		root.setTop(vbox);
@@ -140,14 +149,42 @@ public class RMCreator2D extends Application {
 
 	private void outputMeshGraphJson(File out_file) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		gson = GsonAdapters.getNewGson();
 
-		Levels levels = new Levels(null);
+		Levels levels = new Levels(forest);
 
 		try {
 			FileWriter writer = new FileWriter(out_file);
 			gson.toJson(levels, writer);
 			writer.flush();
 			writer.close();
+		} catch (JsonIOException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void open() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		File out_file = fileChooser.showOpenDialog(primary_stage);
+		if (out_file != null) {
+			readMeshGraphJson(out_file);
+		}
+	}
+
+	private void readMeshGraphJson(File in_file) {
+		Gson gson = GsonAdapters.getNewGson();
+
+		try {
+			FileReader reader = new FileReader(in_file);
+			Levels levels = gson.fromJson(reader, Levels.class);
+			reader.close();
+
+			Stage stage = new Stage();
+			RMBalance2D amc = new RMBalance2D(levels);
+			amc.start(stage);
+			primary_stage.getScene().getWindow().hide();
 		} catch (JsonIOException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

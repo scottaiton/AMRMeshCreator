@@ -5,6 +5,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class NodeTest {
+	@Test
+	void getDimension2d() {
+		Node node = new Node(2);
+		assertEquals(node.getDimension(), 2);
+	}
+
+	@Test
+	void getDimension3d() {
+		Node node = new Node(3);
+		assertEquals(node.getDimension(), 3);
+	}
 
 	@Test
 	void testDefault2DConstructorGetId() {

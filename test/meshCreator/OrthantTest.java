@@ -689,26 +689,76 @@ class OrthantTest {
 
 	@Test
 	void SWToString() {
-		assertEquals(Orthant.SW().toString(), "[SOUTH, WEST]");
+		assertEquals(Orthant.SW().toString(), "SW");
 	}
 
 	@Test
 	void SEToString() {
-		assertEquals(Orthant.SE().toString(), "[SOUTH, EAST]");
+		assertEquals(Orthant.SE().toString(), "SE");
 	}
 
 	@Test
 	void NWToString() {
-		assertEquals(Orthant.NW().toString(), "[NORTH, WEST]");
+		assertEquals(Orthant.NW().toString(), "NW");
 	}
 
 	@Test
 	void NEToString() {
-		assertEquals(Orthant.NE().toString(), "[NORTH, EAST]");
+		assertEquals(Orthant.NE().toString(), "NE");
+	}
+
+	@Test
+	void BSWToString() {
+		assertEquals(Orthant.BSW().toString(), "BSW");
+	}
+
+	@Test
+	void BSEToString() {
+		assertEquals(Orthant.BSE().toString(), "BSE");
+	}
+
+	@Test
+	void BNWToString() {
+		assertEquals(Orthant.BNW().toString(), "BNW");
 	}
 
 	@Test
 	void BNEToString() {
-		assertEquals(Orthant.BNE().toString(), "[BOTTOM, NORTH, EAST]");
+		assertEquals(Orthant.BNE().toString(), "BNE");
+	}
+
+	@Test
+	void TSWToString() {
+		assertEquals(Orthant.TSW().toString(), "TSW");
+	}
+
+	@Test
+	void TSEToString() {
+		assertEquals(Orthant.TSE().toString(), "TSE");
+	}
+
+	@Test
+	void TNWToString() {
+		assertEquals(Orthant.TNW().toString(), "TNW");
+	}
+
+	@Test
+	void TNEToString() {
+		assertEquals(Orthant.TNE().toString(), "TNE");
+	}
+
+	@Test
+	void FourDToString() {
+		assertEquals((new Orthant(4, 0)).toString(), "[Value: 6, BOTTOM, SOUTH, WEST]");
+	}
+
+	@Test
+	void Invalid3DToString() {
+		assertEquals((new Orthant(3, 100)).toString(), "INVALID 3D VALUE: 100");
+	}
+
+	@Test
+	void Invalid2DToString() {
+		assertEquals((new Orthant(2, 100)).toString(), "INVALID 2D VALUE: 100");
 	}
 }

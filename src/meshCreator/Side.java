@@ -174,4 +174,9 @@ public class Side {
 		return str;
 	}
 
+	public static Side fromString(String str) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

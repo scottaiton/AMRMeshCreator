@@ -248,4 +248,12 @@ public class Node {
 	public void setStart(int axis, double start) {
 		starts[axis] = start;
 	}
+
+	/**
+	 * Get the dimension
+	 * @returnt the dimension
+	 */
+	public int getDimension() {
+		return dimension;
+	}
 }

@@ -34,6 +34,9 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -41,6 +44,8 @@ import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import meshCreator.Forest;
+import meshCreator.GsonAdapters;
+import meshCreator.Levels;
 import meshCreator.threeDimensions.RMCreator3D;
 
 public class RMBalance2D extends Application {
@@ -53,15 +58,31 @@ public class RMBalance2D extends Application {
 	private ToggleGroup level;
 	private ToggleButton coarser;
 	private ToggleButton finer;
-	private Forest forest;
 	private Levels levels;
 	Stage primary_stage;
 
-	public RMBalance2D(Forest forest_in) {
+	public RMBalance2D(Forest forest) {
 		super();
+		this.levels = new Levels(forest);
+	}
+
+	public RMBalance2D(Levels levels) {
+		super();
+		this.levels = levels;
+	}
+
+	public static String toRGBCode(Color color) {
+		return String.format("#%02X%02X%02X", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
+				(int) (color.getBlue() * 255));
 	}
 
 	public void start(Stage primaryStage) {
+		Map<Integer, Color> rank_color_map = new HashMap<Integer, Color>();
+		rank_color_map.put(0, Color.WHITE);
+		rank_color_map.put(1, Color.AQUA);
+		rank_color_map.put(2, Color.GREEN);
+		rank_color_map.put(3, Color.ORANGE);
+
 		primary_stage = primaryStage;
 		level = new ToggleGroup();
 		rank = new ToggleGroup();
@@ -78,6 +99,7 @@ public class RMBalance2D extends Application {
 			ToggleButton rank_button = new ToggleButton(i.toString());
 			rank_button.setUserData(i);
 			rank_button.setToggleGroup(rank);
+			rank_button.setStyle("-fx-base: " + toRGBCode(rank_color_map.get(i)));
 			toolbar.getItems().add(rank_button);
 		}
 		rank.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
@@ -97,13 +119,6 @@ public class RMBalance2D extends Application {
 			}
 		});
 
-		// add_button.addActionListener(this);
-		Map<Integer, Color> rank_color_map = new HashMap<Integer, Color>();
-		rank_color_map.put(0, Color.WHITE);
-		rank_color_map.put(1, Color.AQUA);
-		rank_color_map.put(2, Color.GREEN);
-		rank_color_map.put(3, Color.ORANGE);
-		levels = new Levels(forest);
 		panel = new RMBalancePane(levels, rank_color_map);
 		BorderPane root = new BorderPane();
 		root.setCenter(panel);
@@ -135,7 +150,13 @@ public class RMBalance2D extends Application {
 				save();
 			}
 		});
-		file_menu.getItems().addAll(new_menu, save_item);
+		MenuItem open_item = new MenuItem("Open");
+		open_item.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
+				open();
+			}
+		});
+		file_menu.getItems().addAll(new_menu, save_item, open_item);
 		menuBar.getMenus().add(file_menu);
 		vbox.getChildren().addAll(menuBar, toolbar);
 		root.setTop(vbox);
@@ -156,7 +177,7 @@ public class RMBalance2D extends Application {
 	}
 
 	private void outputMeshGraphJson(File out_file) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Gson gson = GsonAdapters.getNewGson();
 
 		try {
 			FileWriter writer = new FileWriter(out_file);
@@ -166,6 +187,15 @@ public class RMBalance2D extends Application {
 		} catch (JsonIOException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private void open() {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		File out_file = fileChooser.showSaveDialog(primary_stage);
+		if (out_file != null) {
+			outputMeshGraphJson(out_file);
 		}
 	}
 }

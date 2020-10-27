@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -13,6 +14,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -35,6 +39,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import meshCreator.Forest;
+import meshCreator.GsonAdapters;
+import meshCreator.Levels;
 import meshCreator.Side;
 import meshCreator.twoDimensions.RMCreator2D;
 
@@ -178,6 +184,19 @@ public class RMCreator3D extends Application {
 	}
 
 	private void outputMeshGraph(File out_file) {
+		Gson gson = GsonAdapters.getNewGson();
+		gson = GsonAdapters.getNewGson();
+
+		Levels levels = new Levels(forest);
+
+		try {
+			FileWriter writer = new FileWriter(out_file);
+			gson.toJson(levels, writer);
+			writer.flush();
+			writer.close();
+		} catch (JsonIOException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void readMeshGraph(File out_file) {

@@ -250,14 +250,54 @@ public class Orthant {
 
 	@Override
 	public String toString() {
-		String ret = "[";
-		Side[] exterior_sides = getExteriorSides();
-		for (int i = 1; i < dimension; i++) {
-			ret += exterior_sides[dimension - i].toString() + ", ";
+		String ret = new String();
+		if (dimension == 2) {
+			if (equals(Orthant.SW())) {
+				ret = "SW";
+			} else if (equals(Orthant.SE())) {
+				ret = "SE";
+			} else if (equals(Orthant.NW())) {
+				ret = "NW";
+			} else if (equals(Orthant.NE())) {
+				ret = "NE";
+			} else {
+				ret = "INVALID 2D VALUE: " + val;
+			}
+		} else if (dimension == 3) {
+			if (equals(Orthant.BSW())) {
+				ret = "BSW";
+			} else if (equals(Orthant.BSE())) {
+				ret = "BSE";
+			} else if (equals(Orthant.BNW())) {
+				ret = "BNW";
+			} else if (equals(Orthant.BNE())) {
+				ret = "BNE";
+			} else if (equals(Orthant.TSW())) {
+				ret = "TSW";
+			} else if (equals(Orthant.TSE())) {
+				ret = "TSE";
+			} else if (equals(Orthant.TNW())) {
+				ret = "TNW";
+			} else if (equals(Orthant.TNE())) {
+				ret = "TNE";
+			} else {
+				ret = "INVALID 3D VALUE: " + val;
+			}
+		} else {
+			ret = "[";
+			Side[] exterior_sides = getExteriorSides();
+			for (int i = 1; i < dimension; i++) {
+				ret += exterior_sides[dimension - i].toString() + ", ";
 
+			}
+			ret += exterior_sides[0] + "]";
 		}
-		ret += exterior_sides[0] + "]";
 		return ret;
+	}
+
+	public static Orthant fromString(String asString) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
