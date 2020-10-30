@@ -46,6 +46,24 @@ public class Orthant {
 	}
 
 	/**
+	 * Lower Axis
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant Lower() {
+		return new Orthant(1, 0b0);
+	}
+
+	/**
+	 * Upper Axis
+	 * 
+	 * @return the new Orthant
+	 */
+	public static Orthant Upper() {
+		return new Orthant(1, 0b1);
+	}
+
+	/**
 	 * Southwestern Quadrant
 	 * 
 	 * @return the new Orthant
@@ -251,7 +269,15 @@ public class Orthant {
 	@Override
 	public String toString() {
 		String ret = new String();
-		if (dimension == 2) {
+		if (dimension == 1) {
+			if (equals(Orthant.Lower())) {
+				ret = "LOWER";
+			} else if (equals(Orthant.Upper())) {
+				ret = "UPPER";
+			} else {
+				ret = "INVALID 1D VALUE: " + val;
+			}
+		} else if (dimension == 2) {
 			if (equals(Orthant.SW())) {
 				ret = "SW";
 			} else if (equals(Orthant.SE())) {
@@ -295,9 +321,54 @@ public class Orthant {
 		return ret;
 	}
 
-	public static Orthant fromString(String asString) {
-		// TODO Auto-generated method stub
-		return null;
+	public static Orthant fromString(String string) {
+		Orthant ret = null;
+		if (string.equals("LOWER")) {
+			ret = Orthant.Lower();
+		} else if (string.equals("UPPER")) {
+			ret = Orthant.Upper();
+		} else if (string.equals("SW")) {
+			ret = Orthant.SW();
+		} else if (string.equals("SE")) {
+			ret = Orthant.SE();
+		} else if (string.equals("NW")) {
+			ret = Orthant.NW();
+		} else if (string.equals("NE")) {
+			ret = Orthant.NE();
+		} else if (string.equals("BSW")) {
+			ret = Orthant.BSW();
+		} else if (string.equals("BSE")) {
+			ret = Orthant.BSE();
+		} else if (string.equals("BNW")) {
+			ret = Orthant.BNW();
+		} else if (string.equals("BNE")) {
+			ret = Orthant.BNE();
+		} else if (string.equals("TSW")) {
+			ret = Orthant.TSW();
+		} else if (string.equals("TSE")) {
+			ret = Orthant.TSE();
+		} else if (string.equals("TNW")) {
+			ret = Orthant.TNW();
+		} else if (string.equals("TNE")) {
+			ret = Orthant.TNE();
+		} else {
+			throw new IllegalArgumentException("Invalid Orthant String");
+		}
+		return ret;
+	}
+
+	public Orthant collapseOnAxis(int axis) {
+		if (axis < 0 || axis > dimension) {
+			throw new IllegalArgumentException("Invalid Axis: " + axis);
+		}
+		Orthant ret = null;
+		if (dimension > 1) {
+			int lower_mask = ~(~0x0 << axis);
+			int upper_mask = ~0x0 << axis + 1;
+			int new_val = (val & lower_mask) | ((val & upper_mask) >> 1);
+			ret = new Orthant(dimension - 1, new_val);
+		}
+		return ret;
 	}
 
 }

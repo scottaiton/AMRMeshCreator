@@ -175,8 +175,23 @@ public class Side {
 	}
 
 	public static Side fromString(String str) {
-		// TODO Auto-generated method stub
-		return null;
+		Side ret = null;
+		if(str.equals("WEST")) {
+			ret = Side.WEST();
+		}else if(str.equals("EAST")) {
+			ret = Side.EAST();
+		}else if(str.equals("SOUTH")) {
+			ret = Side.SOUTH();
+		}else if(str.equals("NORTH")) {
+			ret = Side.NORTH();
+		}else if(str.equals("BOTTOM")) {
+			ret = Side.BOTTOM();
+		}else if(str.equals("TOP")) {
+			ret = Side.TOP();
+		}else {
+			ret = new Side(Integer.parseInt(str.substring(7)));
+		}
+		return ret;
 	}
 
 }

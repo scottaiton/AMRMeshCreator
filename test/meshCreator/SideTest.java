@@ -251,4 +251,40 @@ class SideTest {
 	void ToString7() {
 		assertEquals((new Side(7)).toString(), "Value: 7");
 	}
+
+	@Test
+	void WestFromString() {
+		assertEquals(Side.fromString("WEST"), Side.WEST());
+	}
+
+	@Test
+	void EastFromString() {
+		assertEquals(Side.fromString("EAST"), Side.EAST());
+	}
+
+	@Test
+	void SouthFromString() {
+		assertEquals(Side.fromString("SOUTH"), Side.SOUTH());
+	}
+
+	@Test
+	void NorthFromString() {
+		assertEquals(Side.fromString("NORTH"), Side.NORTH());
+	}
+
+	@Test
+	void BottomFromString() {
+		assertEquals(Side.fromString("BOTTOM"), Side.BOTTOM());
+	}
+
+	@Test
+	void TopFromString() {
+		assertEquals(Side.fromString("TOP"), Side.TOP());
+	}
+
+	@Test
+	void SixFromString() {
+		assertEquals(Side.fromString("Value: 6"), new Side(6));
+	}
+
 }

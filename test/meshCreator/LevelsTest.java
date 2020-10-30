@@ -273,7 +273,7 @@ class LevelsTest {
 		assertEquals(lv0_sw_patch.id, coarse_nbr.ids.get(0));
 		assertEquals(1, coarse_nbr.ranks.size());
 		assertEquals(0, coarse_nbr.ranks.get(0));
-		assertEquals(Orthant.SE(), coarse_nbr.orth_on_coarse);
+		assertEquals(Orthant.Lower(), coarse_nbr.orth_on_coarse);
 	}
 
 	@Test

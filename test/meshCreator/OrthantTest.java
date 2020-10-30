@@ -1,5 +1,6 @@
 package meshCreator;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -10,6 +11,16 @@ import meshCreator.Orthant;
 import meshCreator.Side;
 
 class OrthantTest {
+
+	@Test
+	void LowerConstructor() {
+		assertEquals(Orthant.Lower(), new Orthant(1, 0b0));
+	}
+
+	@Test
+	void UpperConstructor() {
+		assertEquals(Orthant.Upper(), new Orthant(1, 0b1));
+	}
 
 	@Test
 	void SWConstructor() {
@@ -688,6 +699,16 @@ class OrthantTest {
 	}
 
 	@Test
+	void LowerToString() {
+		assertEquals(Orthant.Lower().toString(), "LOWER");
+	}
+
+	@Test
+	void UpperToString() {
+		assertEquals(Orthant.Upper().toString(), "UPPER");
+	}
+
+	@Test
 	void SWToString() {
 		assertEquals(Orthant.SW().toString(), "SW");
 	}
@@ -761,4 +782,271 @@ class OrthantTest {
 	void Invalid2DToString() {
 		assertEquals((new Orthant(2, 100)).toString(), "INVALID 2D VALUE: 100");
 	}
+
+	@Test
+	void Invalid1DToString() {
+		assertEquals((new Orthant(1, 100)).toString(), "INVALID 1D VALUE: 100");
+	}
+
+	@Test
+	void LowerFromString() {
+		assertEquals(Orthant.fromString("LOWER"), Orthant.Lower());
+	}
+
+	@Test
+	void UpperFromString() {
+		assertEquals(Orthant.fromString("UPPER"), Orthant.Upper());
+	}
+
+	@Test
+	void SWFromString() {
+		assertEquals(Orthant.fromString("SW"), Orthant.SW());
+	}
+
+	@Test
+	void SEFromString() {
+		assertEquals(Orthant.fromString("SE"), Orthant.SE());
+	}
+
+	@Test
+	void NWFromString() {
+		assertEquals(Orthant.fromString("NW"), Orthant.NW());
+	}
+
+	@Test
+	void NEFromString() {
+		assertEquals(Orthant.fromString("NE"), Orthant.NE());
+	}
+
+	@Test
+	void BSWFromString() {
+		assertEquals(Orthant.fromString("BSW"), Orthant.BSW());
+	}
+
+	@Test
+	void BSEFromString() {
+		assertEquals(Orthant.fromString("BSE"), Orthant.BSE());
+	}
+
+	@Test
+	void BNWFromString() {
+		assertEquals(Orthant.fromString("BNW"), Orthant.BNW());
+	}
+
+	@Test
+	void BNEFromString() {
+		assertEquals(Orthant.fromString("BNE"), Orthant.BNE());
+	}
+
+	@Test
+	void TSWFromString() {
+		assertEquals(Orthant.fromString("TSW"), Orthant.TSW());
+	}
+
+	@Test
+	void TSEFromString() {
+		assertEquals(Orthant.fromString("TSE"), Orthant.TSE());
+	}
+
+	@Test
+	void TNWFromString() {
+		assertEquals(Orthant.fromString("TNW"), Orthant.TNW());
+	}
+
+	@Test
+	void TNEFromString() {
+		assertEquals(Orthant.fromString("TNE"), Orthant.TNE());
+	}
+
+	@Test
+	void InvalidFromString() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			Orthant.fromString("BLAH");
+		});
+	}
+
+	@Test
+	void BSWCollapseOnAxis0() {
+		assertEquals(Orthant.BSW().collapseOnAxis(0), Orthant.SW());
+	}
+
+	@Test
+	void BSWCollapseOnAxis1() {
+		assertEquals(Orthant.BSW().collapseOnAxis(1), Orthant.SW());
+	}
+
+	@Test
+	void BSWCollapseOnAxis2() {
+		assertEquals(Orthant.BSW().collapseOnAxis(2), Orthant.SW());
+	}
+
+	@Test
+	void BSECollapseOnAxis0() {
+		assertEquals(Orthant.BSE().collapseOnAxis(0), Orthant.SW());
+	}
+
+	@Test
+	void BSECollapseOnAxis1() {
+		assertEquals(Orthant.BSE().collapseOnAxis(1), Orthant.SE());
+	}
+
+	@Test
+	void BSECollapseOnAxis2() {
+		assertEquals(Orthant.BSE().collapseOnAxis(2), Orthant.SE());
+	}
+
+	@Test
+	void BNWCollapseOnAxis0() {
+		assertEquals(Orthant.BNW().collapseOnAxis(0), Orthant.SE());
+	}
+
+	@Test
+	void BNWCollapseOnAxis1() {
+		assertEquals(Orthant.BNW().collapseOnAxis(1), Orthant.SW());
+	}
+
+	@Test
+	void BNWCollapseOnAxis2() {
+		assertEquals(Orthant.BNW().collapseOnAxis(2), Orthant.NW());
+	}
+
+	@Test
+	void BNECollapseOnAxis0() {
+		assertEquals(Orthant.BNE().collapseOnAxis(0), Orthant.SE());
+	}
+
+	@Test
+	void BNECollapseOnAxis1() {
+		assertEquals(Orthant.BNE().collapseOnAxis(1), Orthant.SE());
+	}
+
+	@Test
+	void BNECollapseOnAxis2() {
+		assertEquals(Orthant.BNE().collapseOnAxis(2), Orthant.NE());
+	}
+
+	@Test
+	void TSWCollapseOnAxis0() {
+		assertEquals(Orthant.TSW().collapseOnAxis(0), Orthant.NW());
+	}
+
+	@Test
+	void TSWCollapseOnAxis1() {
+		assertEquals(Orthant.TSW().collapseOnAxis(1), Orthant.NW());
+	}
+
+	@Test
+	void TSWCollapseOnAxis2() {
+		assertEquals(Orthant.TSW().collapseOnAxis(2), Orthant.SW());
+	}
+
+	@Test
+	void TSECollapseOnAxis0() {
+		assertEquals(Orthant.TSE().collapseOnAxis(0), Orthant.NW());
+	}
+
+	@Test
+	void TSECollapseOnAxis1() {
+		assertEquals(Orthant.TSE().collapseOnAxis(1), Orthant.NE());
+	}
+
+	@Test
+	void TSECollapseOnAxis2() {
+		assertEquals(Orthant.TSE().collapseOnAxis(2), Orthant.SE());
+	}
+
+	@Test
+	void TNWCollapseOnAxis0() {
+		assertEquals(Orthant.TNW().collapseOnAxis(0), Orthant.NE());
+	}
+
+	@Test
+	void TNWCollapseOnAxis1() {
+		assertEquals(Orthant.TNW().collapseOnAxis(1), Orthant.NW());
+	}
+
+	@Test
+	void TNWCollapseOnAxis2() {
+		assertEquals(Orthant.TNW().collapseOnAxis(2), Orthant.NW());
+	}
+
+	@Test
+	void TNECollapseOnAxis0() {
+		assertEquals(Orthant.TNE().collapseOnAxis(0), Orthant.NE());
+	}
+
+	@Test
+	void TNECollapseOnAxis1() {
+		assertEquals(Orthant.TNE().collapseOnAxis(1), Orthant.NE());
+	}
+
+	@Test
+	void TNECollapseOnAxis2() {
+		assertEquals(Orthant.TNE().collapseOnAxis(2), Orthant.NE());
+	}
+
+	@Test
+	void SWCollapseOnAxis0() {
+		assertEquals(Orthant.SW().collapseOnAxis(0), Orthant.Lower());
+	}
+
+	@Test
+	void SWCollapseOnAxis1() {
+		assertEquals(Orthant.SW().collapseOnAxis(1), Orthant.Lower());
+	}
+
+	@Test
+	void SECollapseOnAxis0() {
+		assertEquals(Orthant.SE().collapseOnAxis(0), Orthant.Lower());
+	}
+
+	@Test
+	void SECollapseOnAxis1() {
+		assertEquals(Orthant.SE().collapseOnAxis(1), Orthant.Upper());
+	}
+
+	@Test
+	void NWCollapseOnAxis0() {
+		assertEquals(Orthant.NW().collapseOnAxis(0), Orthant.Upper());
+	}
+
+	@Test
+	void NWCollapseOnAxis1() {
+		assertEquals(Orthant.NW().collapseOnAxis(1), Orthant.Lower());
+	}
+
+	@Test
+	void NECollapseOnAxis0() {
+		assertEquals(Orthant.NE().collapseOnAxis(0), Orthant.Upper());
+	}
+
+	@Test
+	void NECollapseOnAxis1() {
+		assertEquals(Orthant.NE().collapseOnAxis(1), Orthant.Upper());
+	}
+
+	@Test
+	void UpperCollapseOnAxis0() {
+		assertEquals(Orthant.Upper().collapseOnAxis(0), null);
+	}
+
+	@Test
+	void LowerCollapseOnAxis0() {
+		assertEquals(Orthant.Lower().collapseOnAxis(0), null);
+	}
+
+	@Test
+	void CollapseOnAxisThrowsWithNegativeAxis() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			Orthant.Upper().collapseOnAxis(-1);
+		});
+	}
+
+	@Test
+	void CollapseOnAxisThrowsWithTooLargeAxis() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			Orthant.Upper().collapseOnAxis(2);
+		});
+	}
+
 }

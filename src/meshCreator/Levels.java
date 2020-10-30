@@ -145,7 +145,7 @@ public class Levels {
 		Orthant orth_on_coarse = null;
 		for (Orthant o : Orthant.GetValuesOnSide(node.getDimension(), s)) {
 			if (node.getId() == parent.getChildId(o)) {
-				orth_on_coarse = o.getNbrOnSide(s);
+				orth_on_coarse = o.collapseOnAxis(s.getAxis());
 				break;
 			}
 		}
